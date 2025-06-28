@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ネズミスケッチ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>ネズミスケッチ</h1>
+    <div id="frame-controls">
+        <button onclick="addFrame()">フレーム追加</button>
+        <button onclick="removeFrame()">フレーム削除</button>
+        <span id="frameCount"></span>
+        <div id="frameList" style="display:inline-block"></div>
+    </div>
+    <div id="controls">
+        <label>キャンバスサイズ:
+            <input type="number" id="canvasWidth" value="16" min="1"> x
+            <input type="number" id="canvasHeight" value="16" min="1">
+            <button onclick="initCanvas()">作成</button>
+        </label>
+        <button onclick="undo()">戻す</button>
+        <button onclick="redo()">戻すを戻す</button>
+        <input type="color" id="colorPicker" value="#ff0000">
+        <button onclick="exportImage('png')">PNG</button>
+        <button onclick="exportImage('jpg')">JPG</button>
+        <button onclick="exportImage('webp')">WEBP</button>
+        <button onclick="exportGif()">GIF</button>
+    </div>
+    <div id="layer-controls">
+        <button onclick="addLayer()">レイヤー追加</button>
+        <span id="layerCount"></span>
+        <div id="layerList"></div>
+    </div>
+    <div id="animation-controls">
+        <button id="playBtn" onclick="playAnimation()">▶️再生</button>
+        <button id="stopBtn" onclick="stopAnimation()" disabled>⏹停止</button>
+        <label>速度(ms):
+            <input type="number" id="animSpeed" value="300" min="50" max="2000" step="10" style="width:60px;">
+        </label>
+        <span id="animFrameInfo"></span>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

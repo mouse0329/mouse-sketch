@@ -636,7 +636,18 @@ function drawPenShape(ctx, cx, cy, color, isErase) {
         ctx.restore();
     }
 }
-
+function drawDotTouch(x, y) {
+    let p = getCurrentProject();
+    let f = getCurrentFrame();
+    if (x < 0 || y < 0 || x >= p.width || y >= p.height) return;
+    let lctx = f.layers[f.activeLayer].getContext("2d");
+    if (currentTool === "eraser") {
+        drawPenShape(lctx, x, y, "#00000000", true);
+    } else {
+        drawPenShape(lctx, x, y, currentColor, false);
+    }
+    redrawAll();
+}
 // 初期化
 window.onload = () => {
     // プロジェクト初期化

@@ -11,6 +11,7 @@
     <script src="lib/"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="nezumi-drawing_icon.webp" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
@@ -87,8 +88,12 @@
                                 </label>
                             </div>
                             <div class="action-group">
-                                <button onclick="undo()">戻す</button>
-                                <button onclick="redo()">戻すを戻す</button>
+                                <button onclick="undo()">戻す<span class="material-symbols-outlined">
+                                        undo
+                                    </span></button>
+                                <button onclick="redo()">戻すを戻す<span class="material-symbols-outlined">
+                                        redo
+                                    </span></button>
                             </div>
                             <div class="export-group">
                                 <button onclick="exportImage('png')">PNG</button>

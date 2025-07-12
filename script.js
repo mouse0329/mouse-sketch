@@ -78,13 +78,59 @@ function updateProjectUI() {
     document.getElementById("projectCount").textContent = `(${projects.length}枚)`;
 }
 
+function showNewProjectDialog(callback) {
+    // すでにダイアログがあれば消す
+    let old = document.getElementById("new-project-dialog");
+    if (old) old.remove();
+
+    const dialog = document.createElement("div");
+    dialog.id = "new-project-dialog";
+    dialog.style.position = "fixed";
+    dialog.style.left = "0";
+    dialog.style.top = "0";
+    dialog.style.width = "100vw";
+    dialog.style.height = "100vh";
+    dialog.style.background = "rgba(0,0,0,0.3)";
+    dialog.style.display = "flex";
+    dialog.style.alignItems = "center";
+    dialog.style.justifyContent = "center";
+    dialog.style.zIndex = "3000";
+
+    dialog.innerHTML = `
+        <div style="background:#fff; border-radius:10px; box-shadow:0 2px 16px #0003; padding:28px 32px; min-width:240px; text-align:center;">
+            <h3 style="margin-top:0;">新しい画像のサイズ</h3>
+            <div style="margin-bottom:12px;">
+                <label>幅: <input id="newProjW" type="number" min="1" max="256" value="16" style="width:60px;"></label>
+                <label style="margin-left:12px;">高さ: <input id="newProjH" type="number" min="1" max="256" value="16" style="width:60px;"></label>
+            </div>
+            <button id="newProjOkBtn">作成</button>
+            <button id="newProjCancelBtn" style="margin-left:12px;">キャンセル</button>
+        </div>
+    `;
+    document.body.appendChild(dialog);
+
+    dialog.querySelector("#newProjOkBtn").onclick = () => {
+        const w = parseInt(dialog.querySelector("#newProjW").value, 10);
+        const h = parseInt(dialog.querySelector("#newProjH").value, 10);
+        dialog.remove();
+        if (callback) callback(w, h);
+    };
+    dialog.querySelector("#newProjCancelBtn").onclick = () => {
+        dialog.remove();
+    };
+}
+
 function addProject() {
-    projects.push(createProject());
-    activeProject = projects.length - 1;
-    updateProjectUI();
-    updateFrameUI(); // ←追加
-    updateLayerUI();
-    redrawAll();
+    showNewProjectDialog((w, h) => {
+        if (!Number.isFinite(w) || w < 1) w = 16;
+        if (!Number.isFinite(h) || h < 1) h = 16;
+        projects.push(createProject(w, h));
+        activeProject = projects.length - 1;
+        updateProjectUI();
+        updateFrameUI();
+        updateLayerUI();
+        redrawAll();
+    });
 }
 
 function removeProjectAt(idx) {
@@ -452,13 +498,19 @@ function handleMouseDown(e) {
         saveHistory();
         isDrawing = false;
     } else {
-        drawDot(e);
+        // 修正: drawDotにx, yを直接渡す
+        drawDotXY(x, y);
     }
 }
 
 function handleMouseMove(e) {
     if (!isDrawing) return;
-    drawDot(e);
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = Math.floor((e.clientX - rect.left) * scaleX / cellSize);
+    const y = Math.floor((e.clientY - rect.top) * scaleY / cellSize);
+    drawDotXY(x, y);
 }
 
 function handleMouseUp(e) {
@@ -529,29 +581,24 @@ function handleTouchEnd(e) {
     lastTouch = null;
 }
 
-function drawDot(e) {
+// drawDotXYをdrawPenShape/範囲チェックのみの最小形にしてみる
+function drawDotXY(x, y) {
     let p = getCurrentProject();
     let f = getCurrentFrame();
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const x = Math.floor((e.clientX - rect.left) * scaleX / cellSize);
-    const y = Math.floor((e.clientY - rect.top) * scaleY / cellSize);
-    if (x < 0 || y < 0 || x >= p.width || y >= p.height) return;
+    // 範囲外は何もしない
+    if (!f || !p) return;
+    // 修正: p.width, p.height, f.layers, f.activeLayer の型・値を明示的にチェック
+    if (
+        typeof x !== "number" || typeof y !== "number" ||
+        x < 0 || y < 0 ||
+        !Number.isFinite(p.width) || !Number.isFinite(p.height) ||
+        x >= p.width || y >= p.height ||
+        !Array.isArray(f.layers) ||
+        typeof f.activeLayer !== "number" ||
+        !f.layers[f.activeLayer]
+    ) return;
     let lctx = f.layers[f.activeLayer].getContext("2d");
-    if (currentTool === "eraser") {
-        drawPenShape(lctx, x, y, "#00000000", true);
-    } else {
-        drawPenShape(lctx, x, y, currentColor, false);
-    }
-    redrawAll();
-}
-
-function drawDotTouch(x, y) {
-    let p = getCurrentProject();
-    let f = getCurrentFrame();
-    if (x < 0 || y < 0 || x >= p.width || y >= p.height) return;
-    let lctx = f.layers[f.activeLayer].getContext("2d");
+    if (!lctx) return;
     if (currentTool === "eraser") {
         drawPenShape(lctx, x, y, "#00000000", true);
     } else {
@@ -969,7 +1016,6 @@ window.onload = () => {
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
     canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
-    createPalette();
 };
 
 function initCanvas() {
@@ -1064,17 +1110,27 @@ function createPalette() {
     addBtn.className = "palette-add-btn";
     addBtn.title = "パレットに色を追加";
     addBtn.innerHTML = "+";
-    addBtn.onclick = () => {
+    addBtn.onclick = (ev) => {
+        ev.stopPropagation();
         const input = document.createElement("input");
         input.type = "color";
         input.style.display = "none";
+        let added = false;
         input.oninput = (e) => {
-            PALETTE_COLORS.push(e.target.value);
-            createPalette();
+            if (!added) {
+                PALETTE_COLORS.push(e.target.value);
+                createPalette();
+                added = true;
+                input.remove();
+            }
         };
+        input.addEventListener("blur", () => {
+            if (!added) input.remove();
+        });
+        input.addEventListener("click", ev => ev.stopPropagation());
         document.body.appendChild(input);
+        input.focus();
         input.click();
-        setTimeout(() => input.remove(), 1000);
     };
     palette.appendChild(addBtn);
 
@@ -1106,7 +1162,6 @@ function createPalette() {
             </select>
         </label>
     `;
-    // イベントバインド
     toolBar.querySelector("#palette-penSize").onchange = (e) => setPenSize(e.target.value);
     toolBar.querySelector("#palette-penMode").onchange = (e) => setPenMode(e.target.value);
     toolBar.querySelectorAll(".tool-btn").forEach(btn => {

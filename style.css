@@ -342,6 +342,118 @@ canvas {
     background: #1976d2;
 }
 
+.palette-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 0 0 0;
+    padding: 8px 0;
+    background: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px #0001;
+    overflow-y: hidden;
+}
+
+.palette-color {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #bbb;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    margin: 0 2px;
+    position: relative;
+    transition: border 0.15s, box-shadow 0.15s;
+}
+
+.palette-color.selected,
+.palette-color:active {
+    border: 2px solid #2196f3;
+    box-shadow: 0 0 0 2px #90caf9;
+}
+
+.palette-del-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #fff;
+    color: #888;
+    border: 1px solid #bbb;
+    border-radius: 50%;
+    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    line-height: 14px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 1px 2px #0002;
+    display: none;
+}
+
+.palette-color:hover .palette-del-btn {
+    display: block;
+}
+
+.palette-add-btn {
+    width: 28px;
+    height: 28px;
+    border: 2px dashed #bbb;
+    border-radius: 6px;
+    background: #fafafa;
+    color: #888;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 0 2px;
+    vertical-align: middle;
+    transition: border 0.15s, background 0.15s;
+}
+
+.palette-add-btn:hover {
+    border: 2px solid #2196f3;
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.palette-toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 0 0;
+    padding: 4px 0;
+    background: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px #0001;
+    font-size: 14px;
+}
+
+.palette-toolbar .tool-btn.active {
+    background: #ffe082;
+    border: 2px solid #ffb300;
+}
+
+.palette-toolbar .tool-btn {
+    margin-left: 0;
+    padding: 4px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    background: #f5f5f5;
+    transition: background 0.15s, border 0.15s;
+}
+
+.palette-toolbar label select {
+    margin-left: 2px;
+    padding: 2px 6px;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+    background: #fff;
+}
+
 @media (max-width: 900px) {
     #main-container {
         /* サイドバーが開いているときは右端に余白を作り、canvasが隠れないようにする */

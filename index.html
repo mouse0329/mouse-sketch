@@ -71,7 +71,25 @@
                             <div class="tool-group">
                                 <button class="tool-btn active" data-tool="pen" onclick="setTool('pen')">ペン</button>
                                 <button class="tool-btn" data-tool="fill" onclick="setTool('fill')">塗りつぶし</button>
+                                <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')">消しゴム</button>
                                 <input type="color" id="colorPicker" value="#ff0000" title="色を選択">
+                                <!-- ペン太さ選択 -->
+                                <label style="margin-left:8px;">
+                                    太さ:
+                                    <select id="penSize" onchange="setPenSize(this.value)">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
+                                </label>
+                                <!-- ペンモード切替 -->
+                                <label style="margin-left:8px;">
+                                    <select id="penMode" onchange="setPenMode(this.value)">
+                                        <option value="square">四角ペン</option>
+                                        <option value="circle">丸ペン</option>
+                                    </select>
+                                </label>
                             </div>
                             <div class="action-group">
                                 <button onclick="undo()">戻す</button>
@@ -102,6 +120,10 @@
                     <canvas id="canvas"></canvas>
                 </div>
             </section>
+            <!-- パレット追加: -->
+            <div id="color-palette" class="palette-bar">
+                <!-- パレット色はscript.jsで生成 -->
+            </div>
         </div>
     </div>
     <script src="script.js"></script>

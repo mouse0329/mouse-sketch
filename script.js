@@ -2,7 +2,9 @@ let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let cellSize = 20;
 let currentColor = "#ff0000";
-let currentTool = "pen"; // "pen" or "fill"
+let currentTool = "pen"; // "pen" or "fill" or "eraser"
+let penSize = 1; // ペン太さ（セル単位）
+let penMode = "square"; // "square" or "circle"
 
 // レイヤー管理
 let layers = [];
@@ -15,6 +17,9 @@ let currentHeight = 16;
 // プロジェクト管理
 let projects = [];
 let activeProject = 0;
+
+// isDrawingのグローバル宣言を追加
+let isDrawing = false;
 
 // プロジェクト構造: { frames, activeFrame, ... }
 function createProject(w = 16, h = 16) {
@@ -318,23 +323,13 @@ function selectLayer(idx) {
     updateLayerUI();
 }
 
-document.getElementById("colorPicker").addEventListener("input", e => {
-    currentColor = e.target.value;
-});
-
-let isDrawing = false;
-
-function drawDot(e) {
-    let p = getCurrentProject();
-    let f = getCurrentFrame();
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / cellSize);
-    const y = Math.floor((e.clientY - rect.top) / cellSize);
-    let lctx = f.layers[f.activeLayer].getContext("2d");
-    lctx.fillStyle = currentColor;
-    lctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-    redrawAll();
-}
+// パレット色リスト（編集可能にするためletに変更）
+let PALETTE_COLORS = [
+    "#000000", "#444444", "#888888", "#cccccc", "#ffffff",
+    "#ff0000", "#ffa500", "#ffff00", "#00ff00", "#00ffff",
+    "#0000ff", "#ff00ff", "#800000", "#808000", "#008000",
+    "#008080", "#000080", "#800080", "#c0c0c0", "#ff69b4"
+];
 
 // 塗りつぶしボタンのイベント
 function setTool(tool) {
@@ -343,6 +338,25 @@ function setTool(tool) {
     document.querySelectorAll('.tool-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tool === tool);
     });
+    // パレット下ツールバーも同期
+    document.querySelectorAll('#palette-toolbar .tool-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tool === tool);
+    });
+}
+
+function setPenSize(val) {
+    penSize = parseInt(val) || 1;
+    let el = document.getElementById("penSize");
+    if (el) el.value = penSize;
+    let el2 = document.getElementById("palette-penSize");
+    if (el2) el2.value = penSize;
+}
+function setPenMode(val) {
+    penMode = val;
+    let el = document.getElementById("penMode");
+    if (el) el.value = penMode;
+    let el2 = document.getElementById("palette-penMode");
+    if (el2) el2.value = penMode;
 }
 
 // 塗りつぶしアルゴリズム
@@ -427,9 +441,12 @@ function hexToRgba(hex) {
 
 function handleMouseDown(e) {
     isDrawing = true;
+    // 修正: スクロールやズーム時も正しい座標を取得
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / cellSize);
-    const y = Math.floor((e.clientY - rect.top) / cellSize);
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = Math.floor((e.clientX - rect.left) * scaleX / cellSize);
+    const y = Math.floor((e.clientY - rect.top) * scaleY / cellSize);
     if (currentTool === "fill") {
         fillAt(x, y);
         saveHistory();
@@ -512,40 +529,82 @@ function handleTouchEnd(e) {
     lastTouch = null;
 }
 
-function drawDotTouch(x, y) {
+function drawDot(e) {
     let p = getCurrentProject();
     let f = getCurrentFrame();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = Math.floor((e.clientX - rect.left) * scaleX / cellSize);
+    const y = Math.floor((e.clientY - rect.top) * scaleY / cellSize);
+    if (x < 0 || y < 0 || x >= p.width || y >= p.height) return;
     let lctx = f.layers[f.activeLayer].getContext("2d");
-    lctx.fillStyle = currentColor;
-    lctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+    if (currentTool === "eraser") {
+        drawPenShape(lctx, x, y, "#00000000", true);
+    } else {
+        drawPenShape(lctx, x, y, currentColor, false);
+    }
     redrawAll();
 }
 
-function initCanvas() {
-    const w = parseInt(document.getElementById("canvasWidth").value);
-    const h = parseInt(document.getElementById("canvasHeight").value);
+function drawDotTouch(x, y) {
     let p = getCurrentProject();
-    p.width = w;
-    p.height = h;
-    canvas.width = w * cellSize;
-    canvas.height = h * cellSize;
-    // レイヤー初期化
-    p.layers = [];
-    p.layerHistories = [];
-    p.layerRedoStacks = [];
-    let off = document.createElement("canvas");
-    off.width = w * cellSize;
-    off.height = h * cellSize;
-    p.layers.push(off);
-    p.layerHistories.push([]);
-    p.layerRedoStacks.push([]);
-    p.activeLayer = 0;
-    saveHistory();
+    let f = getCurrentFrame();
+    if (x < 0 || y < 0 || x >= p.width || y >= p.height) return;
+    let lctx = f.layers[f.activeLayer].getContext("2d");
+    if (currentTool === "eraser") {
+        drawPenShape(lctx, x, y, "#00000000", true);
+    } else {
+        drawPenShape(lctx, x, y, currentColor, false);
+    }
+    redrawAll();
+}
+
+// ペン形状描画
+function drawPenShape(ctx, cx, cy, color, isErase) {
+    const px = cx * cellSize;
+    const py = cy * cellSize;
+    const size = penSize * cellSize;
+    if (isErase) {
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-out";
+        if (penMode === "circle") {
+            ctx.beginPath();
+            ctx.arc(px + cellSize / 2, py + cellSize / 2, (size) / 2, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            ctx.clearRect(px - Math.floor((penSize - 1) / 2) * cellSize, py - Math.floor((penSize - 1) / 2) * cellSize, size, size);
+        }
+        ctx.restore();
+    } else {
+        ctx.save();
+        ctx.fillStyle = color;
+        if (penMode === "circle") {
+            ctx.beginPath();
+            ctx.arc(px + cellSize / 2, py + cellSize / 2, (size) / 2, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            ctx.fillRect(px - Math.floor((penSize - 1) / 2) * cellSize, py - Math.floor((penSize - 1) / 2) * cellSize, size, size);
+        }
+        ctx.restore();
+    }
+}
+
+// 初期化
+window.onload = () => {
+    // プロジェクト初期化
+    projects = [createProject()];
+    activeProject = 0;
+    updateProjectUI();
     updateFrameUI(); // ←追加
     updateLayerUI();
-    redrawAll();
+    initCanvas();
+    setTool("pen");
+    createPalette();
 
-    canvas.onmousedown = handleMouseDown;
+    document.getElementById("penSize").value = penSize;
+    document.getElementById("penMode").value = penMode;
+
     canvas.onmousemove = handleMouseMove;
     canvas.onmouseup = handleMouseUp;
     canvas.onmouseleave = handleMouseUp;
@@ -559,7 +618,7 @@ function initCanvas() {
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
     canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
-}
+};
 
 function drawGrid(w, h) {
     ctx.save();
@@ -892,10 +951,196 @@ window.onload = () => {
     updateLayerUI();
     initCanvas();
     setTool("pen");
-    // イベントリスナー設定
+    createPalette();
+
+    document.getElementById("penSize").value = penSize;
+    document.getElementById("penMode").value = penMode;
+
+    canvas.onmousemove = handleMouseMove;
+    canvas.onmouseup = handleMouseUp;
+    canvas.onmouseleave = handleMouseUp;
+    // タッチイベント
+    canvas.ontouchstart = handleTouchStart;
+    canvas.ontouchmove = handleTouchMove;
+    canvas.ontouchend = handleTouchEnd;
+    canvas.ontouchcancel = handleTouchEnd;
+    // パッシブでないリスナーでスクロール抑止
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+    canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+    createPalette();
+};
+
+function initCanvas() {
+    const w = parseInt(document.getElementById("canvasWidth").value);
+    const h = parseInt(document.getElementById("canvasHeight").value);
+    let p = getCurrentProject();
+    p.width = w;
+    p.height = h;
+    canvas.width = w * cellSize;
+    canvas.height = h * cellSize;
+    // レイヤー初期化
+    p.layers = [];
+    p.layerHistories = [];
+    p.layerRedoStacks = [];
+    let off = document.createElement("canvas");
+    off.width = w * cellSize;
+    off.height = h * cellSize;
+    p.layers.push(off);
+    p.layerHistories.push([]);
+    p.layerRedoStacks.push([]);
+    p.activeLayer = 0;
+    saveHistory();
+    updateFrameUI(); // ←追加
+    updateLayerUI();
+    redrawAll();
+
+    // 既存のイベントリスナーを一度解除してから再登録（多重登録防止）
+    canvas.onmousedown = null;
+    canvas.onmousemove = null;
+    canvas.onmouseup = null;
+    canvas.onmouseleave = null;
+    canvas.ontouchstart = null;
+    canvas.ontouchmove = null;
+    canvas.ontouchend = null;
+    canvas.ontouchcancel = null;
+    canvas.removeEventListener('touchstart', handleTouchStart);
+    canvas.removeEventListener('touchmove', handleTouchMove);
+    canvas.removeEventListener('touchend', handleTouchEnd);
+    canvas.removeEventListener('touchcancel', handleTouchEnd);
+
+    canvas.onmousedown = handleMouseDown;
+    canvas.onmousemove = handleMouseMove;
+    canvas.onmouseup = handleMouseUp;
+    canvas.onmouseleave = handleMouseUp;
+    // タッチイベント
+    canvas.ontouchstart = handleTouchStart;
+    canvas.ontouchmove = handleTouchMove;
+    canvas.ontouchend = handleTouchEnd;
+    canvas.ontouchcancel = handleTouchEnd;
+    // パッシブでないリスナーでスクロール抑止
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+    canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+}
+
+// パレット生成関数を追加
+function createPalette() {
+    const palette = document.getElementById("color-palette");
+    if (!palette) return;
+    palette.innerHTML = "";
+
+    PALETTE_COLORS.forEach((color, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "palette-color";
+        btn.style.background = color;
+        btn.title = color;
+        btn.onclick = () => {
+            currentColor = color;
+            document.getElementById("colorPicker").value = color;
+            document.querySelectorAll(".palette-color").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+        };
+        // 削除ボタン
+        const delBtn = document.createElement("span");
+        delBtn.textContent = "×";
+        delBtn.className = "palette-del-btn";
+        delBtn.title = "この色をパレットから削除";
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (PALETTE_COLORS.length > 1) {
+                PALETTE_COLORS.splice(idx, 1);
+                createPalette();
+            }
+        };
+        btn.appendChild(delBtn);
+        palette.appendChild(btn);
+    });
+
+    // 色追加ボタン
+    const addBtn = document.createElement("button");
+    addBtn.className = "palette-add-btn";
+    addBtn.title = "パレットに色を追加";
+    addBtn.innerHTML = "+";
+    addBtn.onclick = () => {
+        const input = document.createElement("input");
+        input.type = "color";
+        input.style.display = "none";
+        input.oninput = (e) => {
+            PALETTE_COLORS.push(e.target.value);
+            createPalette();
+        };
+        document.body.appendChild(input);
+        input.click();
+        setTimeout(() => input.remove(), 1000);
+    };
+    palette.appendChild(addBtn);
+
+    // パレット下にツール切り替え・太さUIを設置
+    let toolBar = document.getElementById("palette-toolbar");
+    if (!toolBar) {
+        toolBar = document.createElement("div");
+        toolBar.id = "palette-toolbar";
+        toolBar.className = "palette-toolbar";
+        palette.parentNode.appendChild(toolBar);
+    }
+    toolBar.innerHTML = `
+        <button class="tool-btn${currentTool === 'pen' ? ' active' : ''}" data-tool="pen" onclick="setTool('pen')">ペン</button>
+        <button class="tool-btn${currentTool === 'eraser' ? ' active' : ''}" data-tool="eraser" onclick="setTool('eraser')">消しゴム</button>
+        <button class="tool-btn${currentTool === 'fill' ? ' active' : ''}" data-tool="fill" onclick="setTool('fill')">塗りつぶし</button>
+        <label style="margin-left:8px;">
+            太さ:
+            <select id="palette-penSize">
+                <option value="1"${penSize == 1 ? ' selected' : ''}>1</option>
+                <option value="2"${penSize == 2 ? ' selected' : ''}>2</option>
+                <option value="3"${penSize == 3 ? ' selected' : ''}>3</option>
+                <option value="4"${penSize == 4 ? ' selected' : ''}>4</option>
+            </select>
+        </label>
+        <label style="margin-left:8px;">
+            <select id="palette-penMode">
+                <option value="square"${penMode === 'square' ? ' selected' : ''}>四角ペン</option>
+                <option value="circle"${penMode === 'circle' ? ' selected' : ''}>丸ペン</option>
+            </select>
+        </label>
+    `;
+    // イベントバインド
+    toolBar.querySelector("#palette-penSize").onchange = (e) => setPenSize(e.target.value);
+    toolBar.querySelector("#palette-penMode").onchange = (e) => setPenMode(e.target.value);
+    toolBar.querySelectorAll(".tool-btn").forEach(btn => {
+        btn.onclick = () => setTool(btn.dataset.tool);
+    });
+}
+
+// 初期化
+window.onload = () => {
+    // プロジェクト初期化
+    projects = [createProject()];
+    activeProject = 0;
     updateProjectUI();
     updateFrameUI(); // ←追加
     updateLayerUI();
     initCanvas();
     setTool("pen");
+    createPalette();
+
+    document.getElementById("penSize").value = penSize;
+    document.getElementById("penMode").value = penMode;
+
+    canvas.onmousemove = handleMouseMove;
+    canvas.onmouseup = handleMouseUp;
+    canvas.onmouseleave = handleMouseUp;
+    // タッチイベント
+    canvas.ontouchstart = handleTouchStart;
+    canvas.ontouchmove = handleTouchMove;
+    canvas.ontouchend = handleTouchEnd;
+    canvas.ontouchcancel = handleTouchEnd;
+    // パッシブでないリスナーでスクロール抑止
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+    canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+    createPalette();
 };

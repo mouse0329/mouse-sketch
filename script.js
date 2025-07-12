@@ -1019,8 +1019,8 @@ window.onload = () => {
 };
 
 function initCanvas() {
-    const w = parseInt(document.getElementById("canvasWidth").value);
-    const h = parseInt(document.getElementById("canvasHeight").value);
+    const w = parseInt(16);
+    const h = parseInt(16);
     let p = getCurrentProject();
     p.width = w;
     p.height = h;

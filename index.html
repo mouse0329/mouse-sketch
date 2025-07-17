@@ -5,20 +5,30 @@
     <meta charset="UTF-8" />
     <title>ネズミスケッチ</title>
     <link rel="stylesheet" href="style.css">
-    <script src="lib/"></script>
-    <script src="lib/"></script>
-    <script src="lib/"></script>
-    <script src="lib/"></script>
+    <!-- Material Icons 読み込み -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="nezumi-drawing_icon.webp" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
     <header id="header">
         <h1><img src="nezumi-drawing_icon.webp" alt="ネズミスケッチアイコン" class="header-icon" width="32">ネズミスケッチ</h1>
         <div id="project-controls-header">
-            <button onclick="addProject()">画像追加</button>
+            <button onclick="addProject()">
+                <span class="material-icons" style="vertical-align: middle;">add_photo_alternate</span> 画像追加
+            </button>
+            <button onclick="saveProjectFile()">
+                <span class="material-icons" style="vertical-align: middle;">save</span> 保存
+            </button>
+            <label class="file-load-label">
+                <input type="file" id="loadProjectFile" accept=".msketch,application/json" style="display:none"
+                    onchange="loadProjectFile(event)">
+                <span class="file-load-btn">
+                    <span class="material-icons" style="vertical-align: middle;">folder_open</span>
+                    開く
+                </span>
+            </label>
             <span id="projectCount"></span>
             <div id="projectList"></div>
         </div>
@@ -36,10 +46,16 @@
                     </div>
                     <div class="section-content" id="frame-section-content">
                         <div id="frame-controls">
-                            <button onclick="addFrame()">フレーム追加</button>
+                            <button onclick="addFrame()">
+                                <span class="material-icons" style="vertical-align: middle;">add_box</span> フレーム追加
+                            </button>
                             <span id="frameCount"></span>
-                            <button onclick="playAnimation()">▶再生</button>
-                            <button onclick="stopAnimation()">■停止</button>
+                            <button onclick="playAnimation()">
+                                <span class="material-icons" style="vertical-align: middle;">play_arrow</span> ▶再生
+                            </button>
+                            <button onclick="stopAnimation()">
+                                <span class="material-icons" style="vertical-align: middle;">stop</span> ■停止
+                            </button>
                         </div>
                         <div id="frameList"></div>
                     </div>
@@ -51,7 +67,9 @@
                     </div>
                     <div class="section-content" id="layer-section-content">
                         <div id="layer-controls">
-                            <button onclick="addLayer()">レイヤー追加</button>
+                            <button onclick="addLayer()">
+                                <span class="material-icons" style="vertical-align: middle;">layers_add</span> レイヤー追加
+                            </button>
                             <span id="layerCount"></span>
                         </div>
                         <div id="layerList"></div>
@@ -65,10 +83,17 @@
                     <div class="section-content" id="tool-section-content">
                         <div id="controls">
                             <div class="tool-group">
-                                <button class="tool-btn active" data-tool="pen" onclick="setTool('pen')">ペン</button>
-                                <button class="tool-btn" data-tool="fill" onclick="setTool('fill')">塗りつぶし</button>
-                                <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')">消しゴム</button>
-                                <input type="color" id="colorPicker" value="#ff0000" title="色を選択">
+                                <button class="tool-btn active" data-tool="pen" onclick="setTool('pen')">
+                                    <span class="material-icons" style="vertical-align: middle;">edit</span> ペン
+                                </button>
+                                <button class="tool-btn" data-tool="fill" onclick="setTool('fill')">
+                                    <span class="material-icons"
+                                        style="vertical-align: middle;">format_color_fill</span> 塗りつぶし
+                                </button>
+                                <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')"> 消しゴム
+                                </button>
+                                <input type="color" id="colorPicker" value="#ff0000" title="色を選択"
+                                    style="vertical-align: middle;">
                                 <!-- ペン太さ選択 -->
                                 <label style="margin-left:8px;">
                                     太さ:
@@ -86,26 +111,51 @@
                                         <option value="circle">丸ペン</option>
                                     </select>
                                 </label>
+                                <!-- 透明度スライダー追加 -->
+                                <label style="margin-left:8px;">
+                                    透明度:
+                                    <input type="range" id="alphaSlider" min="0" max="100" value="100"
+                                        style="vertical-align: middle; width:70px;">
+                                    <span id="alphaValue">100%</span>
+                                </label>
                             </div>
                             <div class="action-group">
-                                <button onclick="undo()">戻す<span class="material-symbols-outlined">
-                                        undo
-                                    </span></button>
-                                <button onclick="redo()">戻すを戻す<span class="material-symbols-outlined">
-                                        redo
-                                    </span></button>
+                                <button onclick="undo()">
+                                    <span class="material-icons" style="vertical-align: middle;">undo</span> 戻す
+                                </button>
+                                <button onclick="redo()">
+                                    <span class="material-icons" style="vertical-align: middle;">redo</span> 戻すを戻す
+                                </button>
                             </div>
                             <div class="export-group">
-                                <button onclick="exportImage('png')">PNG</button>
-                                <button onclick="exportImage('jpg')">JPG</button>
-                                <button onclick="exportImage('webp')">WEBP</button>
-                                <button onclick="exportGif()">GIF</button>
-                                <button onclick="exportApng()">APNG</button>
-                                <button onclick="saveProjectFile()">保存</button>
+                                <button onclick="exportImage('png')">
+                                    <span class="material-icons" style="vertical-align: middle;">file_download</span>
+                                    PNG
+                                </button>
+                                <button onclick="exportImage('jpg')">
+                                    <span class="material-icons" style="vertical-align: middle;">file_download</span>
+                                    JPG
+                                </button>
+                                <button onclick="exportImage('webp')">
+                                    <span class="material-icons" style="vertical-align: middle;">file_download</span>
+                                    WEBP
+                                </button>
+                                <button onclick="exportGif()">
+                                    <span class="material-icons" style="vertical-align: middle;">gif</span> GIF
+                                </button>
+                                <button onclick="exportApng()">
+                                    <span class="material-icons" style="vertical-align: middle;">animation</span> APNG
+                                </button>
+                                <button onclick="saveProjectFile()">
+                                    <span class="material-icons" style="vertical-align: middle;">save</span> 保存
+                                </button>
                                 <label class="file-load-label">
                                     <input type="file" id="loadProjectFile" accept=".msketch,application/json"
                                         style="display:none" onchange="loadProjectFile(event)">
-                                    <span class="file-load-btn">開く</span>
+                                    <span class="file-load-btn">
+                                        <span class="material-icons" style="vertical-align: middle;">folder_open</span>
+                                        開く
+                                    </span>
                                 </label>
                             </div>
                         </div>
@@ -132,7 +182,7 @@
     </footer>
     <script src="script.js"></script>
     <script>
-        // 開閉UI
+        // 以下は既存のスクリプト。変更なし。
         function toggleSection(id) {
             const section = document.getElementById(id);
             const content = section.querySelector('.section-content');
@@ -145,20 +195,12 @@
                 btn.textContent = "▲";
             }
         }
-        // 初期状態: 開く
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll('.section.collapsible .section-content').forEach(el => el.style.display = "");
             document.querySelectorAll('.section.collapsible .toggle-btn').forEach(el => el.textContent = "▼");
         });
-        // プロジェクトリストをヘッダーに移動
-        window.addEventListener("DOMContentLoaded", () => {
-            const headerList = document.getElementById("projectList");
-            const oldList = document.querySelector("#project-controls #projectList");
-            if (oldList && headerList && oldList !== headerList) {
-                headerList.innerHTML = oldList.innerHTML;
-            }
-        });
-        // サイドパネル開閉
+        window.addEventListener('resize', updateMenuBtnDisplay);
+        document.addEventListener('DOMContentLoaded', updateMenuBtnDisplay);
         function toggleSideMenu(forceOpen) {
             const sidebar = document.getElementById('sidebar');
             const mainContainer = document.getElementById('main-container');
@@ -186,7 +228,6 @@
                 }
             }
         }
-        // 画面幅変更時に自動で閉じる・開けるボタン表示
         function updateMenuBtnDisplay() {
             const sidebar = document.getElementById('sidebar');
             const mainContainer = document.getElementById('main-container');
@@ -209,10 +250,6 @@
                 }
             }
         }
-        window.addEventListener('resize', updateMenuBtnDisplay);
-        document.addEventListener('DOMContentLoaded', updateMenuBtnDisplay);
-
-        // サイドパネル外クリックで閉じる（モバイルのみ）
         document.addEventListener('click', function (e) {
             if (window.innerWidth > 900) return;
             const sidebar = document.getElementById('sidebar');

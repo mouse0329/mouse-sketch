@@ -22,7 +22,7 @@ let activeProject = 0;
 let isDrawing = false;
 
 // プロジェクト構造: { frames, activeFrame, ... }
-function createProject(w = 16, h = 16) {
+function createProject(w = 16, h = 16, name = "") {
     let cellSize = 20;
     let layers = [];
     let layerHistories = [];
@@ -44,7 +44,8 @@ function createProject(w = 16, h = 16) {
         frames: [frame],
         activeFrame: 0,
         width: w,
-        height: h
+        height: h,
+        name: name || `画像${projects.length + 1}`
     };
 }
 
@@ -62,7 +63,17 @@ function updateProjectUI() {
             updateLayerUI();
             redrawAll();
         };
-        item.textContent = `画像${i + 1}`;
+        // 名前編集可能に
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "project-name";
+        nameSpan.textContent = projects[i].name || `画像${i + 1}`;
+        nameSpan.title = "クリックで名前を編集";
+        nameSpan.onclick = (e) => {
+            e.stopPropagation();
+            editProjectName(i, nameSpan);
+        };
+        item.appendChild(nameSpan);
+
         // 削除ボタン
         const delBtn = document.createElement("button");
         delBtn.textContent = "削除";
@@ -76,6 +87,25 @@ function updateProjectUI() {
         list.appendChild(item);
     }
     document.getElementById("projectCount").textContent = `(${projects.length}枚)`;
+}
+
+// プロジェクト名編集用
+function editProjectName(idx, spanEl) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = projects[idx].name || `画像${idx + 1}`;
+    input.className = "project-name-edit";
+    input.style.width = "80px";
+    input.onblur = () => {
+        projects[idx].name = input.value.trim() || `画像${idx + 1}`;
+        updateProjectUI();
+    };
+    input.onkeydown = (e) => {
+        if (e.key === "Enter") input.blur();
+    };
+    spanEl.replaceWith(input);
+    input.focus();
+    input.select();
 }
 
 function showNewProjectDialog(callback) {
@@ -100,6 +130,9 @@ function showNewProjectDialog(callback) {
         <div style="background:#fff; border-radius:10px; box-shadow:0 2px 16px #0003; padding:28px 32px; min-width:240px; text-align:center;">
             <h3 style="margin-top:0;">新しい画像のサイズ</h3>
             <div style="margin-bottom:12px;">
+                <label>名前: <input id="newProjName" type="text" maxlength="32" value="画像${projects.length + 1}" style="width:120px;"></label>
+            </div>
+            <div style="margin-bottom:12px;">
                 <label>幅: <input id="newProjW" type="number" min="1" max="256" value="16" style="width:60px;"></label>
                 <label style="margin-left:12px;">高さ: <input id="newProjH" type="number" min="1" max="256" value="16" style="width:60px;"></label>
             </div>
@@ -112,8 +145,9 @@ function showNewProjectDialog(callback) {
     dialog.querySelector("#newProjOkBtn").onclick = () => {
         const w = parseInt(dialog.querySelector("#newProjW").value, 10);
         const h = parseInt(dialog.querySelector("#newProjH").value, 10);
+        const name = dialog.querySelector("#newProjName").value.trim();
         dialog.remove();
-        if (callback) callback(w, h);
+        if (callback) callback(w, h, name);
     };
     dialog.querySelector("#newProjCancelBtn").onclick = () => {
         dialog.remove();
@@ -121,10 +155,10 @@ function showNewProjectDialog(callback) {
 }
 
 function addProject() {
-    showNewProjectDialog((w, h) => {
+    showNewProjectDialog((w, h, name) => {
         if (!Number.isFinite(w) || w < 1) w = 16;
         if (!Number.isFinite(h) || h < 1) h = 16;
-        projects.push(createProject(w, h));
+        projects.push(createProject(w, h, name));
         activeProject = projects.length - 1;
         updateProjectUI();
         updateFrameUI();
@@ -370,12 +404,16 @@ function selectLayer(idx) {
 }
 
 // パレット色リスト（編集可能にするためletに変更）
+// 透明色を先頭に追加（#00000000は透明）
 let PALETTE_COLORS = [
+    "transparent", // ←透明色
     "#000000", "#444444", "#888888", "#cccccc", "#ffffff",
     "#ff0000", "#ffa500", "#ffff00", "#00ff00", "#00ffff",
     "#0000ff", "#ff00ff", "#800000", "#808000", "#008000",
     "#008080", "#000080", "#800080", "#c0c0c0", "#ff69b4"
 ];
+
+let currentAlpha = 1.0; // 0.0～1.0
 
 // 塗りつぶしボタンのイベント
 function setTool(tool) {
@@ -405,6 +443,20 @@ function setPenMode(val) {
     if (el2) el2.value = penMode;
 }
 
+// HEX→RGBA
+function hexToRgba(hex, alpha = 1.0) {
+    if (hex === "transparent" || hex === "#00000000") return [0, 0, 0, 0];
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    let num = parseInt(hex, 16);
+    return [
+        (num >> 16) & 255,
+        (num >> 8) & 255,
+        num & 255,
+        Math.round(255 * alpha)
+    ];
+}
+
 // 塗りつぶしアルゴリズム
 function fillAt(x, y) {
     let p = getCurrentProject();
@@ -413,7 +465,10 @@ function fillAt(x, y) {
     let imgData = lctx.getImageData(0, 0, p.width * cellSize, p.height * cellSize);
     let px = x * cellSize, py = y * cellSize;
     let target = getPixel(imgData, px, py);
-    let fillColor = hexToRgba(currentColor);
+    // 透明色対応
+    let fillColor = (currentColor === "transparent" || currentColor === "#00000000" || currentAlpha === 0)
+        ? [0, 0, 0, 0]
+        : hexToRgba(currentColor, currentAlpha);
 
     if (colorsMatch(target, fillColor)) return;
 
@@ -470,19 +525,6 @@ function setPixel(imgData, x, y, color) {
 // 色比較
 function colorsMatch(a, b) {
     return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
-}
-
-// HEX→RGBA
-function hexToRgba(hex) {
-    hex = hex.replace('#', '');
-    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-    let num = parseInt(hex, 16);
-    return [
-        (num >> 16) & 255,
-        (num >> 8) & 255,
-        num & 255,
-        255
-    ];
 }
 
 function handleMouseDown(e) {
@@ -585,9 +627,7 @@ function handleTouchEnd(e) {
 function drawDotXY(x, y) {
     let p = getCurrentProject();
     let f = getCurrentFrame();
-    // 範囲外は何もしない
     if (!f || !p) return;
-    // 修正: p.width, p.height, f.layers, f.activeLayer の型・値を明示的にチェック
     if (
         typeof x !== "number" || typeof y !== "number" ||
         x < 0 || y < 0 ||
@@ -599,10 +639,16 @@ function drawDotXY(x, y) {
     ) return;
     let lctx = f.layers[f.activeLayer].getContext("2d");
     if (!lctx) return;
-    if (currentTool === "eraser") {
+    // 透明色対応
+    if (currentTool === "eraser" || currentColor === "transparent" || currentColor === "#00000000" || currentAlpha === 0) {
         drawPenShape(lctx, x, y, "#00000000", true);
     } else {
-        drawPenShape(lctx, x, y, currentColor, false);
+        // RGBA色で描画
+        let rgba = hexToRgba(currentColor, currentAlpha);
+        lctx.save();
+        lctx.globalAlpha = rgba[3] / 255;
+        drawPenShape(lctx, x, y, `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3] / 255})`, false);
+        lctx.restore();
     }
     redrawAll();
 }
@@ -641,10 +687,15 @@ function drawDotTouch(x, y) {
     let f = getCurrentFrame();
     if (x < 0 || y < 0 || x >= p.width || y >= p.height) return;
     let lctx = f.layers[f.activeLayer].getContext("2d");
-    if (currentTool === "eraser") {
+    // 透明色対応
+    if (currentTool === "eraser" || currentColor === "transparent" || currentColor === "#00000000" || currentAlpha === 0) {
         drawPenShape(lctx, x, y, "#00000000", true);
     } else {
-        drawPenShape(lctx, x, y, currentColor, false);
+        let rgba = hexToRgba(currentColor, currentAlpha);
+        lctx.save();
+        lctx.globalAlpha = rgba[3] / 255;
+        drawPenShape(lctx, x, y, `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3] / 255})`, false);
+        lctx.restore();
     }
     redrawAll();
 }
@@ -756,6 +807,9 @@ function exportImage(type) {
     let mime = (type === "jpg" || type === "jpeg") ? "image/jpeg" : `image/${type}`;
     let isAnimation = frames.length > 1;
 
+    // ファイル名にプロジェクト名を利用
+    let baseName = (p.name || `nezumi-drawing`).replace(/[\\/:*?"<>|]/g, "_");
+
     if (!isAnimation) {
         // 1フレームのみ: 通常の静止画
         let tmp = document.createElement("canvas");
@@ -767,7 +821,7 @@ function exportImage(type) {
             tctx.drawImage(f.layers[i], 0, 0);
         }
         let link = document.createElement("a");
-        link.download = `nezumi-drawing.${type}`;
+        link.download = `${baseName}.${type}`;
         if (type === "jpg" || type === "jpeg") {
             link.href = tmp.toDataURL(mime, 0.92);
         } else {
@@ -775,10 +829,8 @@ function exportImage(type) {
         }
         link.click();
     } else if (type === "webp" && typeof window.WebCodecs !== "undefined") {
-        // WEBPアニメーション: WebCodecs APIでアニメーションwebpを生成（対応ブラウザのみ）
-        exportWebpAnimation(frames, p.width * cellSize, p.height * cellSize);
+        exportWebpAnimation(frames, p.width * cellSize, p.height * cellSize, baseName);
     } else {
-        // 複数フレーム: 各フレームを個別に保存（連番ファイル名）
         for (let fi = 0; fi < frames.length; fi++) {
             let tmp = document.createElement("canvas");
             tmp.width = p.width * cellSize;
@@ -789,7 +841,7 @@ function exportImage(type) {
                 tctx.drawImage(f.layers[li], 0, 0);
             }
             let link = document.createElement("a");
-            link.download = `nezumi-animation-f${fi + 1}.${type}`;
+            link.download = `${baseName}-f${fi + 1}.${type}`;
             if (type === "jpg" || type === "jpeg") {
                 link.href = tmp.toDataURL(mime, 0.92);
             } else {
@@ -801,7 +853,7 @@ function exportImage(type) {
 }
 
 // WEBPアニメーション生成（WebCodecs API利用、対応ブラウザのみ）
-async function exportWebpAnimation(frames, width, height) {
+async function exportWebpAnimation(frames, width, height, baseName = "nezumi-animation") {
     if (!window.WebCodecs || !window.VideoEncoder) {
         alert("このブラウザはWebCodecsによるWEBPアニメーションに対応していません。");
         return;
@@ -836,7 +888,7 @@ async function exportWebpAnimation(frames, width, height) {
     // WebMとして保存（WebCodecsはWebPアニメーションではなくWebM動画を生成）
     const webmBlob = new Blob(chunks.map(c => c.byteLength ? c : c.data), { type: "video/webm" });
     const link = document.createElement("a");
-    link.download = "nezumi-animation.webp";
+    link.download = `${baseName}.webm`;
     link.href = URL.createObjectURL(webmBlob);
     link.click();
 }
@@ -931,6 +983,7 @@ function saveProjectFile() {
         projects: projects.map(p => ({
             width: p.width,
             height: p.height,
+            name: p.name || "",
             activeFrame: p.activeFrame,
             frames: p.frames.map(f => ({
                 activeLayer: f.activeLayer,
@@ -955,8 +1008,8 @@ function loadProjectFile(event) {
         try {
             const data = JSON.parse(e.target.result);
             // プロジェクト復元
-            projects = data.projects.map(pdata => {
-                let p = createProject(pdata.width, pdata.height);
+            projects = data.projects.map((pdata, idx) => {
+                let p = createProject(pdata.width, pdata.height, pdata.name || `画像${idx + 1}`);
                 p.frames = pdata.frames.map(fdata => {
                     let f = {
                         layers: [],
@@ -970,13 +1023,11 @@ function loadProjectFile(event) {
                         let c = document.createElement("canvas");
                         c.width = pdata.width * cellSize;
                         c.height = pdata.height * cellSize;
-                        // 画像のロードを同期化
                         img.onload = (() => {
                             let ctx2 = c.getContext("2d");
                             ctx2.clearRect(0, 0, c.width, c.height);
                             ctx2.drawImage(img, 0, 0);
                         });
-                        // 即時描画（onloadでなくても大抵OK）
                         img.onload();
                         f.layers.push(c);
                         f.layerHistories.push([]);
@@ -985,6 +1036,7 @@ function loadProjectFile(event) {
                     return f;
                 });
                 p.activeFrame = pdata.activeFrame;
+                p.name = pdata.name || `画像${idx + 1}`;
                 return p;
             });
             activeProject = data.activeProject || 0;
@@ -1083,7 +1135,7 @@ function initCanvas() {
     canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
 }
 
-// パレット生成関数を追加
+// パレット生成関数を修正（パレット下ツールバーにも透明度スライダー追加）
 function createPalette() {
     const palette = document.getElementById("color-palette");
     if (!palette) return;
@@ -1092,27 +1144,40 @@ function createPalette() {
     PALETTE_COLORS.forEach((color, idx) => {
         const btn = document.createElement("button");
         btn.className = "palette-color";
-        btn.style.background = color;
-        btn.title = color;
+        if (color === "transparent" || color === "#00000000") {
+            btn.style.background = "repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 16px 16px";
+            btn.title = "透明";
+            btn.innerHTML = '<span style="font-size:13px;color:#888;">透明</span>';
+        } else {
+            btn.style.background = color;
+            btn.title = color;
+        }
         btn.onclick = () => {
             currentColor = color;
-            document.getElementById("colorPicker").value = color;
+            // カラーピッカーも同期（透明色は黒に戻す）
+            if (color === "transparent" || color === "#00000000") {
+                document.getElementById("colorPicker").value = "#000000";
+            } else {
+                document.getElementById("colorPicker").value = color;
+            }
             document.querySelectorAll(".palette-color").forEach(b => b.classList.remove("selected"));
             btn.classList.add("selected");
         };
-        // 削除ボタン
-        const delBtn = document.createElement("span");
-        delBtn.textContent = "×";
-        delBtn.className = "palette-del-btn";
-        delBtn.title = "この色をパレットから削除";
-        delBtn.onclick = (e) => {
-            e.stopPropagation();
-            if (PALETTE_COLORS.length > 1) {
-                PALETTE_COLORS.splice(idx, 1);
-                createPalette();
-            }
-        };
-        btn.appendChild(delBtn);
+        // 透明色は削除不可
+        if (idx !== 0) {
+            const delBtn = document.createElement("span");
+            delBtn.textContent = "×";
+            delBtn.className = "palette-del-btn";
+            delBtn.title = "この色をパレットから削除";
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (PALETTE_COLORS.length > 2) {
+                    PALETTE_COLORS.splice(idx, 1);
+                    createPalette();
+                }
+            };
+            btn.appendChild(delBtn);
+        }
         palette.appendChild(btn);
     });
 
@@ -1172,41 +1237,66 @@ function createPalette() {
                 <option value="circle"${penMode === 'circle' ? ' selected' : ''}>丸ペン</option>
             </select>
         </label>
+        <label style="margin-left:8px;">
+            透明度:
+            <input type="range" id="palette-alphaSlider" min="0" max="100" value="${Math.round(currentAlpha * 100)}" style="vertical-align: middle; width:70px;">
+            <span id="palette-alphaValue">${Math.round(currentAlpha * 100)}%</span>
+        </label>
     `;
     toolBar.querySelector("#palette-penSize").onchange = (e) => setPenSize(e.target.value);
     toolBar.querySelector("#palette-penMode").onchange = (e) => setPenMode(e.target.value);
     toolBar.querySelectorAll(".tool-btn").forEach(btn => {
         btn.onclick = () => setTool(btn.dataset.tool);
     });
+    // 透明度スライダーイベント
+    toolBar.querySelector("#palette-alphaSlider").oninput = (e) => {
+        setAlpha(e.target.value);
+        toolBar.querySelector("#palette-alphaValue").textContent = `${e.target.value}%`;
+        // メインツールバーのスライダーも同期
+        let mainAlpha = document.getElementById("alphaSlider");
+        let mainAlphaVal = document.getElementById("alphaValue");
+        if (mainAlpha) mainAlpha.value = e.target.value;
+        if (mainAlphaVal) mainAlphaVal.textContent = `${e.target.value}%`;
+    };
 }
 
-// 初期化
-window.onload = () => {
-    // プロジェクト初期化
-    projects = [createProject()];
-    activeProject = 0;
-    updateProjectUI();
-    updateFrameUI(); // ←追加
-    updateLayerUI();
-    initCanvas();
-    setTool("pen");
-    createPalette();
+// 透明度スライダーの値をセット
+function setAlpha(val) {
+    let v = Math.max(0, Math.min(100, parseInt(val, 10) || 0));
+    currentAlpha = v / 100;
+    // メインツールバーのスライダーも同期
+    let mainAlpha = document.getElementById("alphaSlider");
+    let mainAlphaVal = document.getElementById("alphaValue");
+    if (mainAlpha) mainAlpha.value = v;
+    if (mainAlphaVal) mainAlphaVal.textContent = `${v}%`;
+    // パレットツールバーも同期
+    let palAlpha = document.getElementById("palette-alphaSlider");
+    let palAlphaVal = document.getElementById("palette-alphaValue");
+    if (palAlpha) palAlpha.value = v;
+    if (palAlphaVal) palAlphaVal.textContent = `${v}%`;
+}
 
-    document.getElementById("penSize").value = penSize;
-    document.getElementById("penMode").value = penMode;
-
-    canvas.onmousemove = handleMouseMove;
-    canvas.onmouseup = handleMouseUp;
-    canvas.onmouseleave = handleMouseUp;
-    // タッチイベント
-    canvas.ontouchstart = handleTouchStart;
-    canvas.ontouchmove = handleTouchMove;
-    canvas.ontouchend = handleTouchEnd;
-    canvas.ontouchcancel = handleTouchEnd;
-    // パッシブでないリスナーでスクロール抑止
-    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-    canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
-    createPalette();
-};
+// カラーピッカーで透明色を選択できるようにする（透明色は黒に戻す）
+document.addEventListener("DOMContentLoaded", () => {
+    const colorPicker = document.getElementById("colorPicker");
+    if (colorPicker) {
+        colorPicker.oninput = (e) => {
+            currentColor = e.target.value;
+            document.querySelectorAll(".palette-color").forEach(b => b.classList.remove("selected"));
+        };
+    }
+    // 透明度スライダーイベント
+    const alphaSlider = document.getElementById("alphaSlider");
+    const alphaValue = document.getElementById("alphaValue");
+    if (alphaSlider && alphaValue) {
+        alphaSlider.oninput = (e) => {
+            setAlpha(e.target.value);
+            alphaValue.textContent = `${e.target.value}%`;
+            // パレットツールバーのスライダーも同期
+            let palAlpha = document.getElementById("palette-alphaSlider");
+            let palAlphaVal = document.getElementById("palette-alphaValue");
+            if (palAlpha) palAlpha.value = e.target.value;
+            if (palAlphaVal) palAlphaVal.textContent = `${e.target.value}%`;
+        };
+    }
+});

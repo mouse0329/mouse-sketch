@@ -1191,9 +1191,9 @@ function createPalette() {
         palette.parentNode.appendChild(toolBar);
     }
     toolBar.innerHTML = `
-        <button class="tool-btn${currentTool === 'pen' ? ' active' : ''}" data-tool="pen" onclick="setTool('pen')">ペン</button>
-        <button class="tool-btn${currentTool === 'eraser' ? ' active' : ''}" data-tool="eraser" onclick="setTool('eraser')">消しゴム</button>
-        <button class="tool-btn${currentTool === 'fill' ? ' active' : ''}" data-tool="fill" onclick="setTool('fill')">塗りつぶし</button>
+        <button class="tool-btn${currentTool === 'pen' ? ' active' : ''}" data-tool="pen" onclick="setTool('pen')"><span class="material-icons" style="vertical-align: middle;">edit</span>ペン</button>
+        <button class="tool-btn${currentTool === 'eraser' ? ' active' : ''}" data-tool="eraser" onclick="setTool('eraser')"><span class="material-icons" style="vertical-align: middle;">delete</span>消しゴム</button>
+        <button class="tool-btn${currentTool === 'fill' ? ' active' : ''}" data-tool="fill" onclick="setTool('fill')"><span class="material-icons" style="vertical-align: middle;">format_color_fill</span>塗りつぶし</button>
         <label style="margin-left:8px;">
             太さ:
             <select id="palette-penSize">

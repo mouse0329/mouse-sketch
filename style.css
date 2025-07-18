@@ -189,6 +189,10 @@ canvas {
     display: block;
 }
 
+#canvas {
+    display: none;
+}
+
 #project-controls,
 #frame-controls,
 #layer-controls {

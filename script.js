@@ -895,85 +895,47 @@ async function exportWebpAnimation(frames, width, height, baseName = "nezumi-ani
 
 // アニメーションGIFエクスポート（全フレーム合成）
 function exportGif() {
-    loadGifJs(() => {
-        let p = getCurrentProject();
-        let tmp = document.createElement("canvas");
-        tmp.width = p.width * cellSize;
-        tmp.height = p.height * cellSize;
-        let tctx = tmp.getContext("2d");
-        let gif = new window.GIF({
-            workers: 2,
-            quality: 10,
-            width: tmp.width,
-            height: tmp.height,
-            workerScript: 'lib/gif.worker.js'
-        });
-        for (let fi = 0; fi < p.frames.length; fi++) {
-            tctx.clearRect(0, 0, tmp.width, tmp.height);
-            let f = p.frames[fi];
-            for (let li = 0; li < f.layers.length; li++) {
-                tctx.drawImage(f.layers[li], 0, 0);
-            }
-            gif.addFrame(tmp, { copy: true, delay: 300 });
-        }
-        gif.on('finished', function (blob) {
-            let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'nezumi-animation.gif';
-            link.click();
-        });
-        gif.render();
-    });
-}
-
-// APNGエクスポート（全フレーム合成、apng-jsを利用）
-function exportApng() {
-    // apng-jsが必要（https://github.com/davidmz/apng-js）
-    if (typeof window.encodeAPNG !== "function") {
-        loadApngJs(() => exportApng());
-        return;
-    }
     let p = getCurrentProject();
     let frames = p.frames;
     let width = p.width * cellSize;
     let height = p.height * cellSize;
-    let pngFrames = [];
-    let delays = [];
-    for (let fi = 0; fi < frames.length; fi++) {
+    // 各フレームを画像として取得
+    const images = frames.map(f => {
         let tmp = document.createElement("canvas");
         tmp.width = width;
         tmp.height = height;
         let tctx = tmp.getContext("2d");
-        let f = frames[fi];
         for (let li = 0; li < f.layers.length; li++) {
             tctx.drawImage(f.layers[li], 0, 0);
         }
-        // PNGバイナリデータ
-        let dataUrl = tmp.toDataURL("image/png");
-        let bin = atob(dataUrl.split(',')[1]);
-        let arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        pngFrames.push(arr);
-        delays.push(300); // 300ms/frame
-    }
-    encodeAPNG(pngFrames, delays, width, height).then(blob => {
-        let link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "nezumi-animation.apng";
-        link.click();
+        // CanvasをImageに変換
+        let img = new Image();
+        img.src = tmp.toDataURL("image/png");
+        return img;
     });
+    // GIF生成
+    convertToGIF(images, 300);
 }
 
-// apng-jsのローカルを動的に読み込む
-function loadApngJs(callback) {
-    if (window.encodeAPNG) {
-        callback();
-        return;
-    }
-    let script = document.createElement('script');
-    script.src = 'lib/apng-js.min.js'; // apng-jsのパス
-    script.onload = callback;
-    document.body.appendChild(script);
+// APNGエクスポート（全フレーム合成）
+function exportApng() {
+    let p = getCurrentProject();
+    let frames = p.frames;
+    let width = p.width * cellSize;
+    let height = p.height * cellSize;
+    const images = frames.map(f => {
+        let tmp = document.createElement("canvas");
+        tmp.width = width;
+        tmp.height = height;
+        let tctx = tmp.getContext("2d");
+        for (let li = 0; li < f.layers.length; li++) {
+            tctx.drawImage(f.layers[li], 0, 0);
+        }
+        let img = new Image();
+        img.src = tmp.toDataURL("image/png");
+        return img;
+    });
+    convertToAPNG(images, width, height, 300);
 }
 
 // 編集用ファイル保存
@@ -1300,3 +1262,62 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 });
+
+// GIF変換関数（外部画像配列→GIF生成）
+async function convertToGIF(images, delay = 200) {
+    const gif = new window.GIF({
+        workers: 2,
+        quality: 10,
+        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js'
+    });
+    images.forEach(img => gif.addFrame(img, { delay }));
+    gif.on('finished', blob => {
+        const url = URL.createObjectURL(blob);
+        const imgTag = document.createElement('img');
+        imgTag.src = url;
+        document.body.appendChild(imgTag);
+    });
+    gif.render();
+}
+
+// APNG変換関数（外部画像配列→APNG生成）
+function convertToAPNG(images, width, height, delay = 200) {
+    const frames = [];
+    const durations = [];
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    images.forEach(img => {
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        const rgba = ctx.getImageData(0, 0, width, height).data.buffer;
+        frames.push(rgba);
+        durations.push(delay);
+    });
+    const apng = window.UPNG.encode(frames, width, height, 0, durations);
+    const url = URL.createObjectURL(new Blob([apng], { type: "image/apng" }));
+    const imgTag = document.createElement('img');
+    imgTag.src = url;
+    document.body.appendChild(imgTag);
+}
+
+// 画像パス配列からImageオブジェクト配列を生成
+async function loadImages(imagePaths) {
+    const images = await Promise.all(imagePaths.map(src => {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = src;
+            img.onload = () => resolve(img);
+        });
+    }));
+    return images;
+}
+
+// 使用例（必要に応じて呼び出し）
+// const imagePaths = ['frame1.jpg', 'frame2.jpg', 'frame3.jpg'];
+// loadImages(imagePaths).then(images => {
+//     convertToGIF(images, 200);
+//     convertToAPNG(images, 200, 200, 200);
+// });

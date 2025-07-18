@@ -21,22 +21,27 @@
     <header id="header">
         <h1><img src="nezumi-drawing_icon.webp" alt="ネズミスケッチアイコン" class="header-icon" width="32">ネズミスケッチ</h1>
         <div id="project-controls-header">
-            <button onclick="addProject()">
-                <span class="material-icons" style="vertical-align: middle;">add_photo_alternate</span> 画像追加
-            </button>
-            <button onclick="saveProjectFile()">
-                <span class="material-icons" style="vertical-align: middle;">save</span> 保存
-            </button>
-            <label class="file-load-label">
-                <input type="file" id="loadProjectFile" accept=".msketch,application/json" style="display:none"
-                    onchange="loadProjectFile(event)">
-                <span class="file-load-btn">
-                    <span class="material-icons" style="vertical-align: middle;">folder_open</span>
-                    開く
-                </span>
-            </label>
-            <span id="projectCount"></span>
-            <div id="projectList"></div>
+            <div>
+                <button onclick="addProject()">
+                    <span class="material-icons" style="vertical-align: middle;">add_photo_alternate</span> 画像追加
+                </button>
+                <button onclick="saveProjectFile()">
+                    <span class="material-icons" style="vertical-align: middle;">save</span> 保存
+                </button>
+                <label class="file-load-label">
+                    <input type="file" id="loadProjectFile" accept=".msketch,application/json" style="display:none"
+                        onchange="loadProjectFile(event)">
+                    <span class="file-load-btn">
+                        <span class="material-icons" style="vertical-align: middle;">folder_open</span>
+                        開く
+                    </span>
+                </label>
+            </div>
+            <div style="display: flex
+;">
+                <span id="projectCount"></span>
+                <div id="projectList"></div>
+            </div>
         </div>
         <button id="menu-toggle-btn" onclick="toggleSideMenu()" aria-label="メニューを開く" style="display:none;">☰</button>
     </header>
@@ -57,10 +62,10 @@
                             </button>
                             <span id="frameCount"></span>
                             <button onclick="playAnimation()">
-                                <span class="material-icons" style="vertical-align: middle;">play_arrow</span> ▶再生
+                                <span class="material-icons" style="vertical-align: middle;">play_arrow</span> 再生
                             </button>
                             <button onclick="stopAnimation()">
-                                <span class="material-icons" style="vertical-align: middle;">stop</span> ■停止
+                                <span class="material-icons" style="vertical-align: middle;">stop</span> 停止
                             </button>
                         </div>
                         <div id="frameList"></div>
@@ -184,7 +189,7 @@
     </div>
     <footer>
         <p>© 2025 ネズミスケッチ</p>
-        <p><a href="a.html">利用規約</a></p>
+        <p><a href="a.html">利用規約</a>　<a href="license.html">ライセンス</a></p>
     </footer>
     <canvas id="canvas" width="200" height="200"></canvas>
 

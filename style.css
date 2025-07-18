@@ -34,6 +34,7 @@ header#header h1 {
     gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
+    flex-direction: column;
 }
 
 #project-controls-header #projectList {
@@ -239,7 +240,6 @@ canvas {
 .layer-item,
 .project-item,
 .frame-item {
-    display: flex;
     align-items: center;
     background: #fff;
     border: 1px solid #ccc;

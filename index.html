@@ -10,9 +10,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="nezumi-drawing_icon.webp" type="image/x-icon">
     <!-- GIF/APNGライブラリ追加 -->
-    <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js"></script>
+    <script src="lib/gif.js"></script>
+    <script src="lib/gif.worker.js"></script>
+    <script src="lib/UPNG.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+
 </head>
 
 <body>
@@ -184,6 +186,8 @@
         <p>© 2025 ネズミスケッチ</p>
         <p><a href="a.html">利用規約</a></p>
     </footer>
+    <canvas id="canvas" width="200" height="200"></canvas>
+
     <script src="script.js"></script>
     <script>
         // 以下は既存のスクリプト。変更なし。

@@ -899,8 +899,7 @@ function exportGif() {
     let frames = p.frames;
     let width = p.width * cellSize;
     let height = p.height * cellSize;
-    // 各フレームを画像として取得
-    const images = frames.map(f => {
+    const canvasImages = frames.map(f => {
         let tmp = document.createElement("canvas");
         tmp.width = width;
         tmp.height = height;
@@ -908,16 +907,26 @@ function exportGif() {
         for (let li = 0; li < f.layers.length; li++) {
             tctx.drawImage(f.layers[li], 0, 0);
         }
-        // CanvasをImageに変換
-        let img = new Image();
-        img.src = tmp.toDataURL("image/png");
-        return img;
+        return tmp.toDataURL("image/png");
     });
-    // GIF生成
-    convertToGIF(images, 300);
+    Promise.all(canvasImages.map(src => {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => resolve(img);
+        });
+    })).then(images => {
+        const validImages = images.filter(img => img.width > 0 && img.height > 0);
+        if (validImages.length === 0) {
+            alert("GIFに変換できる画像がありません。");
+            return;
+        }
+        // ファイル名をプロジェクト名から生成
+        const baseName = (p.name || `nezumi-animation`).replace(/[\\/:*?"<>|]/g, "_");
+        convertToGIF(validImages, 300, baseName + ".gif");
+    });
 }
 
-// APNGエクスポート（全フレーム合成）
 function exportApng() {
     let p = getCurrentProject();
     let frames = p.frames;
@@ -935,7 +944,8 @@ function exportApng() {
         img.src = tmp.toDataURL("image/png");
         return img;
     });
-    convertToAPNG(images, width, height, 300);
+    const baseName = (p.name || `nezumi-animation`).replace(/[\\/:*?"<>|]/g, "_");
+    convertToAPNG(images, width, height, 300, baseName + ".apng");
 }
 
 // 編集用ファイル保存
@@ -1264,24 +1274,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // GIF変換関数（外部画像配列→GIF生成）
-async function convertToGIF(images, delay = 200) {
+async function convertToGIF(images, delay = 200, filename = "nezumi-animation.gif") {
     const gif = new window.GIF({
         workers: 2,
         quality: 10,
-        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js'
+        workerScript: 'lib/gif.worker.js'
     });
     images.forEach(img => gif.addFrame(img, { delay }));
     gif.on('finished', blob => {
         const url = URL.createObjectURL(blob);
-        const imgTag = document.createElement('img');
-        imgTag.src = url;
-        document.body.appendChild(imgTag);
+        // ダウンロードリンク生成
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 1000);
     });
     gif.render();
 }
 
-// APNG変換関数（外部画像配列→APNG生成）
-function convertToAPNG(images, width, height, delay = 200) {
+function convertToAPNG(images, width, height, delay = 200, filename = "nezumi-animation.apng") {
     const frames = [];
     const durations = [];
     const canvas = document.createElement('canvas');
@@ -1297,9 +1313,16 @@ function convertToAPNG(images, width, height, delay = 200) {
     });
     const apng = window.UPNG.encode(frames, width, height, 0, durations);
     const url = URL.createObjectURL(new Blob([apng], { type: "image/apng" }));
-    const imgTag = document.createElement('img');
-    imgTag.src = url;
-    document.body.appendChild(imgTag);
+    // ダウンロードリンク生成
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, 1000);
 }
 
 // 画像パス配列からImageオブジェクト配列を生成

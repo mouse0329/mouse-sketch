@@ -3,23 +3,42 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>ネズミスケッチ</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Material Icons 読み込み -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>ネズミスケッチ - 簡単アニメーション作成・ドット絵制作ツール</title>
+
+    <!-- ✅ SEO 対策 -->
+    <meta name="description" content="ネズミスケッチは、誰でも簡単にドット絵アニメーションが作れる無料ツールです。レイヤー・フレーム対応、GIFやAPNGの書き出しも可能！">
+    <meta name="keywords" content="ドット絵, アニメーション, 無料, ツール, GIF, APNG, 簡単, ピクセルアート, ドット絵ツール">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="mouse0329">
+
+    <!-- ✅ SNS シェア対応 (OGP) -->
+    <meta property="og:title" content="ネズミスケッチ - ドット絵アニメーション制作ツール">
+    <meta property="og:description" content="簡単にドット絵アニメーションが作れる無料ツール！GIF・APNG書き出しも対応。">
+    <meta property="og:image" content="https://mouse-sketch.netlify.app/スクリーンショット.png">
+    <meta property="og:url" content="https://mouse-sketch.netlify.app/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- ✅ Favicon -->
     <link rel="icon" href="nezumi-drawing_icon.webp" type="image/x-icon">
-    <!-- GIF/APNGライブラリ追加 -->
+
+    <!-- ✅ CSS / Google Fonts -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- ✅ JSライブラリ -->
     <script src="lib/gif.js"></script>
     <script src="lib/gif.worker.js"></script>
     <script src="lib/UPNG.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-
 </head>
 
 <body>
     <header id="header">
-        <h1><img src="nezumi-drawing_icon.webp" alt="ネズミスケッチアイコン" class="header-icon" width="32">ネズミスケッチ</h1>
+        <h1>
+            <img src="nezumi-drawing_icon.webp" alt="ネズミスケッチアイコン" class="header-icon" width="32">
+            ネズミスケッチ - ドット絵アニメーション制作ツール
+        </h1>
         <div id="project-controls-header">
             <div>
                 <button onclick="addProject()">
@@ -32,24 +51,25 @@
                     <input type="file" id="loadProjectFile" accept=".msketch,application/json" style="display:none"
                         onchange="loadProjectFile(event)">
                     <span class="file-load-btn">
-                        <span class="material-icons" style="vertical-align: middle;">folder_open</span>
-                        開く
+                        <span class="material-icons" style="vertical-align: middle;">folder_open</span> 開く
                     </span>
                 </label>
             </div>
-            <div style="display: flex
-;">
+            <div style="display: flex;">
                 <span id="projectCount"></span>
                 <div id="projectList"></div>
             </div>
         </div>
         <button id="menu-toggle-btn" onclick="toggleSideMenu()" aria-label="メニューを開く" style="display:none;">☰</button>
     </header>
+
     <div id="main-container">
         <div id="sidebar" class="sidepanel">
             <button id="menu-toggle-btn-close" class="menu-close" onclick="toggleSideMenu()" style="display:none;"
                 aria-label="メニューを閉じる">×</button>
             <div class="sidepanel-scroll">
+
+                <!-- フレーム -->
                 <section class="section collapsible" id="frame-section">
                     <div class="section-header" onclick="toggleSection('frame-section')">
                         <h2>フレーム</h2>
@@ -71,6 +91,8 @@
                         <div id="frameList"></div>
                     </div>
                 </section>
+
+                <!-- レイヤー -->
                 <section class="section collapsible" id="layer-section">
                     <div class="section-header" onclick="toggleSection('layer-section')">
                         <h2>レイヤー</h2>
@@ -79,13 +101,15 @@
                     <div class="section-content" id="layer-section-content">
                         <div id="layer-controls">
                             <button onclick="addLayer()">
-                                <span class="material-icons" style="vertical-align: middle;">layers_add</span> レイヤー追加
+                                <span class="material-icons" style="vertical-align: middle;">layers</span> レイヤー追加
                             </button>
                             <span id="layerCount"></span>
                         </div>
                         <div id="layerList"></div>
                     </div>
                 </section>
+
+                <!-- ツール -->
                 <section class="section collapsible" id="tool-section">
                     <div class="section-header" onclick="toggleSection('tool-section')">
                         <h2>ツール・操作</h2>
@@ -101,11 +125,11 @@
                                     <span class="material-icons"
                                         style="vertical-align: middle;">format_color_fill</span> 塗りつぶし
                                 </button>
-                                <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')"> 消しゴム
+                                <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')">
+                                    消しゴム
                                 </button>
                                 <input type="color" id="colorPicker" value="#ff0000" title="色を選択"
                                     style="vertical-align: middle;">
-                                <!-- ペン太さ選択 -->
                                 <label style="margin-left:8px;">
                                     太さ:
                                     <select id="penSize" onchange="setPenSize(this.value)">
@@ -115,14 +139,12 @@
                                         <option value="4">4</option>
                                     </select>
                                 </label>
-                                <!-- ペンモード切替 -->
                                 <label style="margin-left:8px;">
                                     <select id="penMode" onchange="setPenMode(this.value)">
                                         <option value="square">四角ペン</option>
                                         <option value="circle">丸ペン</option>
                                     </select>
                                 </label>
-                                <!-- 透明度スライダー追加 -->
                                 <label style="margin-left:8px;">
                                     透明度:
                                     <input type="range" id="alphaSlider" min="0" max="100" value="100"
@@ -157,23 +179,14 @@
                                 <button onclick="exportApng()">
                                     <span class="material-icons" style="vertical-align: middle;">animation</span> APNG
                                 </button>
-                                <button onclick="saveProjectFile()">
-                                    <span class="material-icons" style="vertical-align: middle;">save</span> 保存
-                                </button>
-                                <label class="file-load-label">
-                                    <input type="file" id="loadProjectFile" accept=".msketch,application/json"
-                                        style="display:none" onchange="loadProjectFile(event)">
-                                    <span class="file-load-btn">
-                                        <span class="material-icons" style="vertical-align: middle;">folder_open</span>
-                                        開く
-                                    </span>
-                                </label>
                             </div>
                         </div>
                     </div>
                 </section>
             </div>
         </div>
+
+        <!-- メインパネル -->
         <div id="main-panel">
             <section class="section">
                 <h2>キャンバス</h2>
@@ -181,20 +194,18 @@
                     <canvas id="canvas" style="display:block; max-width:none; max-height:none;"></canvas>
                 </div>
             </section>
-            <!-- パレット追加: -->
-            <div id="color-palette" class="palette-bar">
-                <!-- パレット色はscript.jsで生成 -->
-            </div>
+            <div id="color-palette" class="palette-bar"></div>
         </div>
     </div>
+
     <footer>
-        <p>© 2025 ネズミスケッチ</p>
+        <p>© 2025 nezumi-sketch <a href="https://github.com/mouse0329" rel="noopener noreferrer">github mouse0329</a>.
+            All Rights Reserved.</p>
         <p><a href="a.html">利用規約</a>　<a href="license.html">ライセンス</a></p>
     </footer>
-    <canvas id="canvas" width="200" height="200"></canvas>
 
-    <script src="script.js">
-    </script>
+    <!-- ✅ スクリプト -->
+    <script src="script.js"></script>
 </body>
 
 </html>

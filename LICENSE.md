@@ -1,6 +1,6 @@
-# nezumi-Paint 利用規約
+# nezumi-sketch 利用規約
 
-この利用規約（以下「本規約」といいます）は、nezumi-Paint（以下「本ソフトウェア」といいます）の利用に関する条件を定めるものです。本ソフトウェアを利用するすべてのユーザー（以下「ユーザー」といいます）は、本規約に同意したものとみなされます。
+この利用規約（以下「本規約」といいます）は、nezumi-sketch（以下「本ソフトウェア」といいます）の利用に関する条件を定めるものです。本ソフトウェアを利用するすべてのユーザー（以下「ユーザー」といいます）は、本規約に同意したものとみなされます。
 
 ## 第1条（適用）
 
@@ -56,7 +56,7 @@
 
 ## 著作権表示
 
-© 2025 nezumi-Paint (https://github.com/mouse0329). All Rights Reserved.  
+© 2025 nezumi-sketch (https://github.com/mouse0329). All Rights Reserved.  
 本ソフトウェアは MITライセンスの [JSGIF](https://github.com/shachaf/jsgif) を利用しています。  
 JSGIF の著作権およびライセンスは `LICENSE-JSGIF.md` に記載しています。
 

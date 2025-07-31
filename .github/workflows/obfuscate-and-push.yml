@@ -1,0 +1,39 @@
+name: 自動難読化＆公開
+
+on:
+  push:
+    paths:
+      - 'script.js'
+
+jobs:
+  obfuscate-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ リポジトリをcheckoutチュー
+        uses: actions/checkout@v3
+
+      - name: 🧀 Node.jsセットアップ
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 📦 難読化ツールをインストール
+        run: npm install -g javascript-obfuscator
+
+      - name: 🧠 難読化を実行
+        run: |
+          javascript-obfuscator script.js --output obfuscated.js --compact true --self-defending true
+
+      - name: 🔁 公開リポジトリをクローン
+        run: |
+          git clone https://x-access-token:${{ secrets.GH_TOKEN_PUBLIC }}@github.com/mouse0329/mouse-sketch.git public-repo
+
+      - name: 📦 難読化ファイルを配置してpush
+        run: |
+          cp obfuscated.js public-repo/script.js
+          cd public-repo
+          git config user.name "GitHub Actions Mouse"
+          git config user.email "mouse@github"
+          git add script.js
+          git commit -m "🧀 自動難読化された script.js を更新チュー" || echo "No changes to commit"
+          git push

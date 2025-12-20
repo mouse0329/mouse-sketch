@@ -1,41 +1,308 @@
-body {
-    font-family: sans-serif;
-    text-align: center;
-    background: #fdfdfd;
+:root {
+    --bg: #f7f9fc;
+    --surface: #ffffff;
+    --muted: #374151;
+    --primary: #1976d2;
+    --accent: #2196f3;
+    --card-shadow: 0 6px 18px rgba(17,24,39,0.06);
+    --radius: 10px;
+    --glass: rgba(255,255,255,0.6);
+    --body-top: #1f2937;
+
+}
+[data-theme="dark"] {
+    --bg: #0b1020;
+    --surface: #0f1724;
+    --muted: #ffffff; /* ダーク時は文字を白に */
+    --primary: #60a5fa;
+    --accent: #3b82f6;
+    --card-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    --body-top: #e0e0e0;
+} 
+
+/* ダークテーマ時のコントラスト調整 */
+[data-theme="dark"] header#header {
+    background: linear-gradient(180deg, #071023, #0b1220);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+[data-theme="dark"] .header-controls .btn,
+[data-theme="dark"] .header-actions .btn,
+[data-theme="dark"] .file-load-btn,
+[data-theme="dark"] .icon-btn {
+    color: #ffffff; /* 白にして可読性を向上 */
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.06);
+} 
+[data-theme="dark"] .header-meta,
+[data-theme="dark"] .header-controls {
+    color: var(--muted);
+}
+[data-theme="dark"] .header-actions .material-icons,
+[data-theme="dark"] .header-controls .material-icons {
+    color: var(--primary);
 }
 
+/* ツールボタンの明瞭化 */
+[data-theme="dark"] .tool-btn {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.06);
+    color: #ffffff;
+}
+[data-theme="dark"] .tool-btn.active {
+    background: linear-gradient(180deg, rgba(59,130,246,0.18), rgba(96,165,250,0.12));
+    border-color: rgba(59,130,246,0.35);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(59,130,246,0.06);
+}
+
+/* パネル系（セクション、サイドバー、メインパネル） */
+[data-theme="dark"] .section {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    box-shadow: none;
+    color: var(--muted);
+}
+[data-theme="dark"] .section h2 {
+    color: var(--muted);
+    border-left-color: rgba(96,165,250,0.6);
+}
+[data-theme="dark"] #sidebar {
+    background: linear-gradient(180deg, #071023, #081226);
+    color: var(--muted);
+    border-right: 1px solid rgba(255,255,255,0.03);
+}
+[data-theme="dark"] #main-panel {
+    background: transparent;
+}
+
+/* フォーム要素（入力・セレクト）のダーク対応 */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="range"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: rgba(255,255,255,0.02);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* パレット等の背景調整 */
+[data-theme="dark"] .palette-bar,
+[data-theme="dark"] .palette-toolbar {
+    background: rgba(255,255,255,0.02);
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+}
+
+/* スクロールバー（ダーク） */
+[data-theme="dark"] #projectList::-webkit-scrollbar,
+[data-theme="dark"] #frameList::-webkit-scrollbar,
+[data-theme="dark"] #layerList::-webkit-scrollbar {
+    background: rgba(255,255,255,0.02);
+}
+[data-theme="dark"] #projectList::-webkit-scrollbar-thumb,
+[data-theme="dark"] #frameList::-webkit-scrollbar-thumb,
+[data-theme="dark"] #layerList::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+}
+
+/* フォーカス時（キーボード操作向け） */
+[data-theme="dark"] :focus {
+    outline: 2px solid rgba(59,130,246,0.35);
+    outline-offset: 2px;
+}
+
+/* レイヤー／フレーム カード色調微調整 */
+[data-theme="dark"] .layer-item,
+[data-theme="dark"] .project-item,
+[data-theme="dark"] .frame-item {
+    background: rgba(255,255,255,0.01);
+    border-color: rgba(255,255,255,0.03);
+    color: var(--muted);
+}
+
+/* パレットの微調整 */
+[data-theme="dark"] .palette-toolbar {
+    background: rgba(255,255,255,0.02);
+    box-shadow: 0 8px 24px rgba(2,6,23,0.6);
+}
+[data-theme="dark"] .palette-color {
+    border-color: rgba(255,255,255,0.06);
+}
+[data-theme="dark"] .palette-add-btn {
+    border-color: rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    color: var(--muted);
+}
+
+/* レイヤー／フレームカード */
+[data-theme="dark"] .layer-item,
+[data-theme="dark"] .project-item,
+[data-theme="dark"] .frame-item {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.03);
+    color: var(--muted);
+}
+[data-theme="dark"] .layer-thumb,
+[data-theme="dark"] .frame-thumb {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.04);
+}
+
+/* ボタン類をより黒っぽく (ダークテーマ) */
+[data-theme="dark"] button,
+[data-theme="dark"] .btn,
+[data-theme="dark"] .tool-btn,
+[data-theme="dark"] .file-load-btn,
+[data-theme="dark"] .icon-btn,
+[data-theme="dark"] .palette-toolbar .tool-btn,
+[data-theme="dark"] .palette-add-btn,
+[data-theme="dark"] .layer-btn,
+[data-theme="dark"] .project-btn,
+[data-theme="dark"] .frame-btn {
+    background: linear-gradient(180deg, #071023, #0b1220);
+    color: #ffffff; /* ダーク時は文字を白に */
+    border-color: rgba(255,255,255,0.04);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.6) inset;
+}
+
+[data-theme="dark"] .tool-btn:hover,
+[data-theme="dark"] button:hover,
+[data-theme="dark"] .btn:hover,
+[data-theme="dark"] .file-load-btn:hover {
+    background: linear-gradient(180deg, #0b1220, #0f1724);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .tool-btn.active,
+[data-theme="dark"] .btn.active {
+    background: linear-gradient(180deg, rgba(59,130,246,0.18), rgba(96,165,250,0.12));
+    color: #ffffff; /* アクティブ時も白 */
+    border-color: rgba(59,130,246,0.35);
+    box-shadow: 0 8px 24px rgba(59,130,246,0.06);
+}
+
+[data-theme="dark"] .palette-add-btn {
+    border-color: rgba(255,255,255,0.04);
+    background: linear-gradient(180deg, #071023, #0b1220);
+    color: #ffffff;
+}
+
+body {
+    font-family: Inter, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--muted);
+    background: var(--bg);
+}
+
+/* .app-sub は小さめの二次テキストなので --muted を使用 */
+.app-sub { color: var(--muted); }
+
 header#header {
-    background: #e3f2fd;
-    padding: 10px 0 6px 0;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px #0001;
-    border-bottom: 1px solid #b3e5fc;
+    background: linear-gradient(180deg, var(--surface), rgba(255,255,255,0.98));
+    padding: 12px 18px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 header#header h1 {
-    margin: 0 0 6px 0;
-    font-size: 1.5em;
-    color: #1976d2;
-    letter-spacing: 0.05em;
-}
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+} 
 
 #main-container {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    gap: 24px;
-    max-width: 1200px;
+    align-items: stretch; /* allow children to stretch vertically */
+    gap: 20px;
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 12px;
 }
 
-#project-controls-header {
+/* Make sidebar use fixed width and main panel take remaining space */
+#sidebar { flex: 0 0 280px; }
+#main-panel { flex: 1 1 auto; max-width: none; display:flex; flex-direction: column; }
+
+/* Make canvas area expand to available space */
+#canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--surface);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    padding: 12px;
+    margin-top: 8px;
+    overflow: auto;
+    width: 100%;
+    flex: 1 1 auto;
+    /* Limit height to viewport minus header/footer to maximize canvas area */
+    max-height: calc(100vh - 160px);
+}
+
+/* Allow canvas to scale to fill container while preserving pixelated look */
+canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: none;
+    max-height: none;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform-origin: center center;
+    image-rendering: pixelated;
+}
+
+#canvas-container canvas { position: relative; }
+
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.header-actions .btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.02));
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary);
     display: flex;
     align-items: center;
     gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-    flex-direction: column;
 }
+
+.icon-btn {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.header-icon { border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); width:36px; height:36px; }
+.app-title { font-weight: 700; color: var(--primary); }
+.app-sub { font-size: 0.8rem; margin-left: 8px; color: var(--muted); font-weight: 400; }
 
 #project-controls-header #projectList {
     margin-left: 8px;
@@ -110,22 +377,25 @@ header#header h1 {
 
 .tool-btn {
     margin-left: 0;
-    padding: 4px 14px;
+    padding: 6px 12px;
     font-size: 14px;
     cursor: pointer;
-    border: 1px solid #bbb;
-    border-radius: 4px;
-    background: #f5f5f5;
-    transition: background 0.15s, border 0.15s;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.01));
+    transition: background 0.12s, border 0.12s, transform 0.12s;
 }
 
 .tool-btn.active {
-    background: #ffe082;
+    background: linear-gradient(180deg, #fff6e5, #fff3d6);
     border: 2px solid #ffb300;
+    box-shadow: 0 6px 18px rgba(255, 180, 0, 0.06);
+    transform: translateY(-2px);
 }
 
 .tool-btn:hover {
-    background: #fffde7;
+    transform: translateY(-2px);
+    background: rgba(0,0,0,0.02);
 }
 
 input[type="color"] {
@@ -201,6 +471,7 @@ canvas {
     align-items: center;
     gap: 8px;
     margin-bottom: 6px;
+    flex-wrap: wrap;
 }
 
 #projectList,
@@ -217,7 +488,7 @@ canvas {
     max-width: 100%;
     overflow-x: auto;
     border: 1px solid #aaa;
-    background: #f8f8f8;
+    background: var(--surface);
     padding: 4px;
     gap: 4px;
     border-radius: 4px;
@@ -226,38 +497,42 @@ canvas {
 #layerList {
     display: flex;
     flex-direction: column-reverse;
-    align-items: flex-start;
-    max-height: 220px;
+    align-items: stretch;
+    max-height: 280px;
     overflow-y: auto;
-    border: 1px solid #aaa;
-    background: #f8f8f8;
-    width: 220px;
-    padding: 4px;
-    gap: 4px;
-    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: var(--surface);
+    width: 100%;
+    min-width: 220px;
+    padding: 6px;
+    gap: 8px;
+    border-radius: 8px;
 }
 
 .layer-item,
 .project-item,
 .frame-item {
+    display: flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 2px 8px;
-    border-radius: 4px;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid rgba(0,0,0,0.04);
+    padding: 6px 8px;
+    border-radius: 8px;
     cursor: pointer;
-    gap: 4px;
-    transition: border 0.15s, background 0.15s;
+    gap: 8px;
+    transition: border 0.12s, background 0.12s, transform 0.12s;
 }
+.layer-item:hover, .project-item:hover, .frame-item:hover { transform: translateY(-2px); }
 
 .layer-item.active {
     border: 2px solid #2196f3;
-    background: #e3f2fd;
+    background: var(--surface);
 }
 
 .project-item.active {
     border: 2px solid #f44336;
-    background: #ffebee;
+    background: var(--surface);
 }
 
 .frame-item.active {
@@ -267,13 +542,14 @@ canvas {
 
 .layer-thumb,
 .frame-thumb {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #bbb;
-    background: #eee;
-    margin-right: 4px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: var(--surface);
+    margin-right: 8px;
     image-rendering: pixelated;
-    border-radius: 2px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(2,6,23,0.04);
 }
 
 .layer-btn,
@@ -339,24 +615,40 @@ canvas {
 }
 
 #menu-toggle-btn {
-    display: none;
-    position: absolute;
-    right: 18px;
-    top: 18px;
+    display: none; /* shown via JS on small screens */
+    position: relative;
+    right: auto;
+    top: auto;
     z-index: 2001;
-    background: #2196f3;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.6em;
-    padding: 4px 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+    color: var(--primary);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 8px;
+    font-size: 1rem;
+    padding: 6px 10px;
     cursor: pointer;
-    box-shadow: 0 2px 8px #0002;
-    transition: background 0.2s;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    transition: transform 0.12s, background 0.12s;
+}
+#menu-toggle-btn:hover { transform: translateY(-2px); }
+#menu-toggle-btn:active { transform: translateY(0); background: rgba(0,0,0,0.02); }
+
+/* Small screens: show button in header (inline) and avoid overlap */
+@media (max-width: 900px) {
+    #menu-toggle-btn {
+        display: block;
+    }
+    header#header { padding-left: 12px; padding-right: 12px; }
+    .header-left { display:flex; align-items:center; gap:8px; }
+    /* ensure menu button appears before header-controls to avoid overlap */
+    #menu-toggle-btn { order: -1; margin-right: 6px; }
 }
 
-#menu-toggle-btn:active {
-    background: #1976d2;
+/* Dark theme adjustments */
+[data-theme="dark"] #menu-toggle-btn {
+    color: var(--primary);
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.06);
 }
 
 .palette-bar {
@@ -370,41 +662,41 @@ canvas {
     box-shadow: 0 1px 4px #0001;
     overflow-y: hidden;
 }
-
 .palette-color {
-    width: 28px;
-    height: 28px;
-    border: 2px solid #bbb;
-    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(16,24,40,0.06);
+    border: 2px solid rgba(0,0,0,0.06);
     cursor: pointer;
     outline: none;
-    margin: 0 2px;
+    margin: 0 4px;
     position: relative;
-    transition: border 0.15s, box-shadow 0.15s;
+    transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
 }
 
-.palette-color.selected,
-.palette-color:active {
-    border: 2px solid #2196f3;
-    box-shadow: 0 0 0 2px #90caf9;
+.palette-color.selected {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(16,24,40,0.12);
+    border-color: var(--accent);
 }
 
 .palette-del-btn {
     position: absolute;
     top: -8px;
     right: -8px;
-    background: #fff;
+    background: var(--surface);
     color: #888;
-    border: 1px solid #bbb;
+    border: 1px solid rgba(0,0,0,0.06);
     border-radius: 50%;
     font-size: 12px;
-    width: 16px;
-    height: 16px;
-    line-height: 14px;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
     text-align: center;
     cursor: pointer;
     z-index: 2;
-    box-shadow: 0 1px 2px #0002;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     display: none;
 }
 
@@ -413,23 +705,24 @@ canvas {
 }
 
 .palette-add-btn {
-    width: 28px;
-    height: 28px;
-    border: 2px dashed #bbb;
-    border-radius: 6px;
-    background: #fafafa;
+    width: 30px;
+    height: 30px;
+    border: 2px dashed rgba(0,0,0,0.06);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.01));
     color: #888;
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
-    margin: 0 2px;
+    margin: 0 4px;
     vertical-align: middle;
-    transition: border 0.15s, background 0.15s;
+    transition: border 0.12s, background 0.12s, transform 0.12s;
 }
 
 .palette-add-btn:hover {
-    border: 2px solid #2196f3;
-    background: #e3f2fd;
-    color: #1976d2;
+    transform: translateY(-2px);
+    border: 2px solid var(--accent);
+    background: rgba(34,197,94,0.02);
+    color: var(--primary);
 }
 
 .palette-toolbar {
@@ -438,17 +731,23 @@ canvas {
     align-items: center;
     gap: 8px;
     margin: 8px 0 0 0;
-    padding: 4px 0;
-    background: #f8f8f8;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px #0001;
+    padding: 6px 8px;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
     font-size: 14px;
 }
 
 .palette-toolbar .tool-btn.active {
-    background: #ffe082;
+    background: linear-gradient(180deg, var(--accent), var(--primary));
     border: 2px solid #ffb300;
+    box-shadow: 0 6px 18px rgba(255, 180, 0, 0.08);
 }
+
+#themeToggleBtn {
+    transition: transform 0.12s;
+}
+#themeToggleBtn:hover { transform: rotate(8deg); }
 
 .palette-toolbar .tool-btn {
     margin-left: 0;

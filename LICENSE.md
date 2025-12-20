@@ -60,6 +60,8 @@
 本ソフトウェアは MITライセンスの [JSGIF](https://github.com/shachaf/jsgif) を利用しています。  
 JSGIF の著作権およびライセンスは `LICENSE-JSGIF.md` に記載しています。
 
+**サードパーティライブラリの一覧**：本プロジェクトで使用している外部ライブラリとライセンスは `license/THIRD-PARTY-LICENSES.md` を参照してください。
+
 ---
 
 制定日：2025年7月12日  

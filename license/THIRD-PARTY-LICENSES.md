@@ -23,6 +23,10 @@ This project includes or references the following third-party libraries. See the
   - Source: https://fonts.google.com/icons and https://github.com/google/material-design-icons
   - License file included: `license/material-icons-APACHE2.0.txt`
 
+- JSZip (Stuk) — MIT
+  - Source: https://github.com/Stuk/jszip
+  - Note: used via CDN in this project; full license text added to `license/jszip-MIT.md`
+
 - Other small utilities in `lib/` (e.g., `b64.js`, `anim.js`, `animWorker.js`) — see headers in files and the items above.
 
 If you want I can also copy full license texts for other libraries (UPNG.js, gif.js, etc.) into `license/` — let me know whether to add all license texts or only the missing ones.

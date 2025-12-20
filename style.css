@@ -744,6 +744,20 @@ canvas {
     box-shadow: 0 6px 18px rgba(255, 180, 0, 0.08);
 }
 
+/* レイヤー移動用ボタン */
+.layer-action-btn {
+    margin-left:6px;
+    padding:4px 8px;
+    cursor:pointer;
+    border-radius:4px;
+    border:1px solid rgba(0,0,0,0.06);
+    background:#f5f5f5;
+}
+.layer-action-btn[disabled] { opacity:0.5; cursor:not-allowed; }
+
+/* レイヤー移動中のプレビュー（特別なスタイルはキャンバス上で行う） */
+
+
 #themeToggleBtn {
     transition: transform 0.12s;
 }
@@ -760,6 +774,44 @@ canvas {
     transition: background 0.15s, border 0.15s;
 }
 
+/* Used colors panel */
+.used-colors-panel {
+    margin-left: 8px;
+    padding: 8px;
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    max-width: 480px;
+    display: grid;
+    gap: 6px;
+}
+.used-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 6px;
+}
+.used-color-item {
+    display:flex;
+    gap:8px;
+    align-items:center;
+    padding:6px;
+    border-radius:6px;
+    cursor:pointer;
+    border:1px solid rgba(0,0,0,0.04);
+}
+.used-color-item:hover { background: rgba(0,0,0,0.02); }
+.used-color-swatch {
+    width:28px;
+    height:28px;
+    border-radius:4px;
+    border:1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    flex-shrink:0;
+}
+.used-color-label { font-size:13px; color:var(--muted,#444); }
+.used-color-count { font-size:12px; color:var(--muted,#888); margin-left:auto; }
+/* Transparent pattern */
+.transparent-swatch { background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 12px 12px; }
 .palette-toolbar label select {
     margin-left: 2px;
     padding: 2px 6px;

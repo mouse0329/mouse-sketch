@@ -66,7 +66,7 @@
         <div id="sidebar" class="sidepanel">
             <button id="menu-toggle-btn-close" class="menu-close" onclick="toggleSideMenu()" style="display:none;"
                 aria-label="メニューを閉じる">×</button>
-            <div class="sidepanel-scroll">
+            <div class="sidepanel-scroll" style="overflow: auto">
 
                 <!-- フレーム -->
                 <section class="section collapsible" id="frame-section">
@@ -107,6 +107,16 @@
                             <button onclick="addLayer()">
                                 <span class="material-icons" style="vertical-align: middle;">layers</span> レイヤー追加
                             </button>
+                            <button id="copyLayerBtn" class="layer-action-btn" title="アクティブレイヤーをコピー">コピー</button>
+                            <button id="pasteLayerBtn" class="layer-action-btn" title="コピーしたレイヤーを貼り付け" disabled>ペースト</button>
+                            <div style="display:inline-flex; gap:6px; align-items:center; margin-left:8px;">
+                                <button id="nudgeUpBtn" class="layer-action-btn" title="上に移動">↑</button>
+                                <button id="nudgeLeftBtn" class="layer-action-btn" title="左に移動">←</button>
+                                <button id="nudgeRightBtn" class="layer-action-btn" title="右に移動">→</button>
+                                <button id="nudgeDownBtn" class="layer-action-btn" title="下に移動">↓</button>
+                                <label style="margin-left:6px; font-size:13px;">量:<input id="nudgeStep" type="number" value="1" min="1" style="width:48px; margin-left:6px;"></label>
+                            </div>
+                            <span id="layerExportStatus" style="margin-left:8px; font-size:13px; color:var(--muted,#444);"></span>
                             <span id="layerCount"></span>
                         </div>
                         <div id="layerList"></div>
@@ -134,6 +144,9 @@
                                 </button>
                                 <button class="tool-btn" data-tool="pan" onclick="setTool('pan')">
                                     <span class="material-icons" style="vertical-align: middle;">open_with</span> 移動
+                                </button>
+                                <button class="tool-btn" data-tool="moveLayer" onclick="setTool('moveLayer')">
+                                    <span class="material-icons" style="vertical-align: middle;">transform</span> レイヤー移動
                                 </button>
 
                                 <input type="color" id="colorPicker" value="#ff0000" title="色を選択"
@@ -200,6 +213,9 @@
                                 <button onclick="exportSpriteSheetDialog()" title="Unity向け 横並びスプライトシートを出力">
                                     <span class="material-icons" style="vertical-align: middle;">view_column</span> スプライトシート
                                 </button>
+                                <button id="exportFramesZipBtn" class="btn" onclick="exportFramesLayersZip()" title="フレームごとにレイヤーをPNGとしてZIPで出力">フレーム別ZIP</button>
+                                                            <button id="exportLayerGifBtn" class="layer-action-btn" title="各レイヤーをGIFアニメで書き出す">レイヤー別GIF</button>
+                            <button id="exportLayerApngBtn" class="layer-action-btn" title="各レイヤーをAPNGで書き出す">レイヤー別APNG</button>
                             </div>
                         </div>
                     </div>
@@ -216,6 +232,10 @@
                 </div>
             </section>
             <div id="color-palette" class="palette-bar"></div>
+            <div id="used-colors-tools" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+                <button id="scanColorsBtn" class="palette-toolbar tool-btn">使われている色</button>
+                <div id="scanColorsPanel" class="used-colors-panel" style="display:none;"></div>
+            </div>
         </div>
     </div>
 
@@ -227,6 +247,7 @@
     </footer>
 
     <!-- ✅ スクリプト -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js" referrerpolicy="no-referrer"></script>
     <script src="script.js"></script>
 </body>
 

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ネズミスケッチ 利用規約</title>
+    <style>
+        /* 背景グラデーションアニメーション */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+            line-height: 1.8;
+            padding: 100px 2em 2em;
+            /* ヘッダー固定分の上パディング */
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            color: #333;
+            background: linear-gradient(-45deg, #b3e5fc, #fce4ec, #e1bee7, #b3e5fc);
+            background-size: 400% 400%;
+            animation: bg-animation 12s ease infinite;
+            box-sizing: border-box;
+        }
+
+        @keyframes bg-animation {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* ヘッダー */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-width: 800px;
+            background: #fffdf7;
+            border-bottom: 2px solid #b3e5fc;
+            padding: 1rem 1.5em;
+            box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+            z-index: 1000;
+            user-select: none;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            margin: 0;
+            color: #0277bd;
+        }
+
+        .header-icon {
+            display: inline-block;
+            vertical-align: middle;
+            width: 32px;
+            height: 32px;
+        }
+
+        nav {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        nav a {
+            color: #0277bd;
+            text-decoration: none;
+            margin: 0 0.3em;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* ナビの区切り「|」を自動追加 */
+        nav a:not(:last-child)::after {
+            content: "|";
+            margin-left: 0.4em;
+            color: #aaa;
+        }
+
+        /* 見出し */
+        h1,
+        h2 {
+            border-left: 5px solid #ffa500;
+            padding-left: 0.6em;
+            border-radius: 0.3em;
+            background: rgba(255, 255, 255, 0.5);
+            color: #444;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+
+        h2 {
+            font-size: 1.4em;
+            margin-top: 2em;
+            color: #555;
+        }
+
+        /* コンテンツ */
+        p,
+        ul {
+            padding: 1em;
+            border-radius: 0.4em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-top: 0.6em;
+            background: rgba(255, 255, 255, 0.7);
+            color: #333;
+        }
+
+        ul {
+            padding-left: 1.8em;
+        }
+
+        /* フッター */
+        footer {
+            margin-top: 4em;
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+            user-select: none;
+        }
+
+        /* スマホ対応 */
+        @media (max-width: 600px) {
+            body {
+                padding: 120px 1em 2em;
+            }
+
+            header {
+                padding: 1rem 1em;
+            }
+
+            nav {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="header">
+        <h1>
+            <img src="/img/nezumi-drawing_icon.webp" alt="ネズミスケッチアイコン" class="header-icon" />
+            ネズミスケッチ - 利用規約
+        </h1>
+        <nav>
+            <a href="/">ホーム</a>
+            <a href="/about">アバウト</a>
+            <a href="/terms">利用規約</a>
+            <a href="/license">ライセンス</a>
+        </nav>
+    </header>
+
+    <main>
+        <p>この利用規約（以下「本規約」といいます）は、ネズミスケッチ（以下「本サービス」といいます）の利用に関する条件を定めるものです。本サービスを利用するすべてのユーザー（以下「ユーザー」といいます）は、本規約に同意したものとみなされます。
+        </p>
+
+        <h2>第1条（適用）</h2>
+        <ul>
+            <li>本規約は、本サービスの利用に関わるすべてに適用されます。</li>
+            <li>ガイドラインやヘルプも本規約の一部とみなされます。</li>
+        </ul>
+
+        <h2>第2条（特徴と保存方式）</h2>
+        <ul>
+            <li>本サービスはユーザーのデバイス上で動作し、サーバーやクラウドとの通信は行いません。</li>
+            <li>データ（画像・アニメーション等）はすべて端末に保存されます。</li>
+            <li>オフラインでの利用が可能です。</li>
+        </ul>
+
+        <h2>第3条（利用登録）</h2>
+        <p>本サービスはユーザー登録やログインなしで利用できます。</p>
+
+        <h2>第4条（禁止事項）</h2>
+        <ul>
+            <li>法令や公序良俗に反する行為</li>
+            <li>他人の著作権などを侵害する行為</li>
+            <li>逆コンパイル、無断配布などの技術的不正行為</li>
+        </ul>
+
+        <h2>第5条（著作権および知的財産権）</h2>
+        <ul>
+            <li>ユーザーが作成した作品の著作権はユーザー本人に帰属します。</li>
+            <li>商用・非商用問わず自由に利用できます。</li>
+            <li>無断トレースや第三者の権利侵害となる作品は対象外となります。</li>
+            <li>本サービスではユーザー作品を収集・送信しないため、運営側が取得することはありません。</li>
+        </ul>
+
+        <h2>第6条（サービス内容の変更・終了）</h2>
+        <ul>
+            <li>予告なく機能の追加・変更・終了を行う場合があります。</li>
+            <li>サービス終了後もデバイス内の保存データには影響しません。</li>
+        </ul>
+
+        <h2>第7条（免責事項）</h2>
+        <ul>
+            <li>本サービスは現状のままで提供されます。</li>
+            <li>エラーやデータ損失について、運営者は責任を負いません。</li>
+        </ul>
+
+        <h2>第8条（利用規約の変更）</h2>
+        <p>本規約は予告なく変更される場合があります。変更後も利用を継続した場合は、同意したものとみなされます。</p>
+
+        <h2>第9条（準拠法および裁判管轄）</h2>
+        <p>本規約は日本法に準拠します。運営者の所在地を管轄する裁判所を第一審の専属的合意管轄裁判所とします。</p>
+    </main>
+
+    <footer>
+        制定日：2025年7月12日<br />
+        ネズミスケッチ運営
+    </footer>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('Isitacceptable')) {
+            document.getElementById('header').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

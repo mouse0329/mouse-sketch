@@ -1,0 +1,61 @@
+name: 自動難読化＆公開（dev → main）
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main  # dev リポジトリに push したら反映したい場合は変更可
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-from-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ===== 開発リポジトリをクローン =====
+      - name: 🔁 mouse-sketch-dev をクローンチュー
+        run: |
+          if [ -z "${{ secrets.GH_TOKEN_PUBLIC }}" ]; then
+            echo "❌ GH_TOKEN_PUBLIC が未設定チュー"
+            exit 1
+          fi
+
+          rm -rf dev-repo
+          git clone https://x-access-token:${{ secrets.GH_TOKEN_PUBLIC }}@github.com/mouse0329/mouse-sketch-dev.git dev-repo
+
+      # ===== Node.js 設定 =====
+      - name: 🧀 Node.jsセットアップチュー
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # ===== JS難読化 =====
+      - name: 🧠 script.js を難読化チュー
+        run: |
+          npm install -g javascript-obfuscator
+          javascript-obfuscator dev-repo/script.js \
+            --output script.js \
+            --compact true \
+            --self-defending true
+
+      # ===== dev内容を / に展開（JSは上書き） =====
+      - name: 🐭 dev → / に展開チュー
+        run: |
+          rsync -av --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "script.js" \
+            dev-repo/ ./
+
+      # ===== commit & push =====
+      - name: 🛡️ commit & push チュー
+        run: |
+          git config user.name "GitHub Actions Mouse"
+          git config user.email "mouse@github"
+
+          git add .
+          git commit -m "🧀 dev から自動展開＆JS難読化チュー" || echo "No changes"
+
+          git push

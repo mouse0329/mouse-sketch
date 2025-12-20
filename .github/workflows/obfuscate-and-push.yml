@@ -5,6 +5,9 @@ on:
     paths:
       - 'script.js'
 
+permissions:
+  contents: write
+
 jobs:
   obfuscate-and-publish:
     runs-on: ubuntu-latest
@@ -22,11 +25,14 @@ jobs:
 
       - name: 🧠 難読化を実行
         run: |
-          javascript-obfuscator script.js --output obfuscated.js --compact true --self-defending true
+          javascript-obfuscator script.js \
+            --output obfuscated.js \
+            --compact true \
+            --self-defending true
 
       - name: 🔁 公開リポジトリをクローン
         run: |
-          git clone https://x-access-token:${{ secrets.GH_TOKEN_PUBLIC }}@github.com/mouse0329/mouse-sketch.git public-repo
+          git clone https://github.com/mouse0329/mouse-sketch.git public-repo
 
       - name: 📦 難読化ファイルを配置してpush
         run: |
@@ -35,5 +41,5 @@ jobs:
           git config user.name "GitHub Actions Mouse"
           git config user.email "mouse@github"
           git add script.js
-          git commit -m "🧀 自動難読化された script.js を更新チュー" || echo "No changes to commit"
+          git commit -m "🧀 自動難読化された script.js を更新チュー" || echo "No changes"
           git push

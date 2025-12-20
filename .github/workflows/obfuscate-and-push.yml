@@ -11,35 +11,56 @@ permissions:
 jobs:
   obfuscate-and-publish:
     runs-on: ubuntu-latest
+
     steps:
       - name: ✅ リポジトリをcheckoutチュー
         uses: actions/checkout@v3
 
-      - name: 🧀 Node.jsセットアップ
+      - name: 🧀 Node.jsセットアップチュー
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: 📦 難読化ツールをインストール
+      - name: 📦 難読化ツールをインストールチュー
         run: npm install -g javascript-obfuscator
 
-      - name: 🧠 難読化を実行
+      - name: 🧠 難読化を実行チュー
         run: |
           javascript-obfuscator script.js \
             --output obfuscated.js \
             --compact true \
             --self-defending true
 
-      - name: 🔁 公開リポジトリをクローン
+      - name: 🔁 公開リポジトリをクローン（トークン付き）チュー
         run: |
-          git clone https://github.com/mouse0329/mouse-sketch.git public-repo
+          if [ -z "${{ secrets.GH_TOKEN_PUBLIC }}" ]; then
+            echo "❌ GH_TOKEN_PUBLIC が未設定チュー"
+            exit 1
+          else
+            echo "✅ GH_TOKEN_PUBLIC は設定されているチュー"
+          fi
 
-      - name: 📦 難読化ファイルを配置してpush
+          git clone https://x-access-token:${{ secrets.GH_TOKEN_PUBLIC }}@github.com/mouse0329/mouse-sketch.git public-repo
+
+      - name: 🛡️ 保険＋デバッグ付きで push チュー
         run: |
           cp obfuscated.js public-repo/script.js
           cd public-repo
+
           git config user.name "GitHub Actions Mouse"
           git config user.email "mouse@github"
+
           git add script.js
           git commit -m "🧀 自動難読化された script.js を更新チュー" || echo "No changes"
+
+          echo "=== 🔍 origin（変更前） ==="
+          git remote -v
+
+          # 🛡️ 保険：origin を必ずトークン付きに上書き
+          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN_PUBLIC }}@github.com/mouse0329/mouse-sketch.git
+
+          echo "=== 🔍 origin（変更後） ==="
+          git remote -v
+
+          echo "=== 🚀 push 開始チュー ==="
           git push

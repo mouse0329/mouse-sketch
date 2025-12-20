@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>アバウト | ネズミスケッチ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ネズミスケッチについての紹介ページです。">
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="nezumi-drawing_icon.webp" type="image/webp">
+</head>
+
+<body>
+    <!-- ネズミ散布背景 -->
+    <div class="nezumi-decoration">
+        <img src="/img/nezumi-drawing_icon.webp" alt="ネズミ1" class="nezumi scatter">
+        <img src="/img/nezumi-drawing_icon.webp" alt="ネズミ2" class="nezumi scatter">
+        <img src="/img/nezumi-drawing_icon.webp" alt="ネズミ3" class="nezumi scatter">
+        <img src="/img/nezumi-drawing_icon.webp" alt="ネズミ4" class="nezumi scatter">
+        <img src="/img/nezumi-drawing_icon.webp" alt="ネズミ5" class="nezumi scatter">
+    </div>
+
+    <!-- メイン内容 -->
+    <header id="header">
+        <h1>
+            <img src="/img/nezumi-drawing_icon.webp" alt="ネズミスケッチアイコン" class="header-icon">
+            ネズミスケッチ - アバウト
+        </h1>
+        <nav>
+            <a href="/">ホーム</a> |
+            <a href="/about">アバウト</a> |
+            <a href="/terms">利用規約</a> |
+            <a href="/license">ライセンス</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="about-screenshot-wrap">
+            <img src="/img/スクリーンショット.png" alt="ネズミスケッチのスクリーンショット" class="about-screenshot">
+        </div>
+
+        <h2>このサイトについて</h2>
+        <p>
+            <b>ネズミスケッチ</b>は、誰でも簡単にドット絵やアニメーションを作成できる無料のWebツールです。<br>
+            レイヤー・フレーム対応、GIFやAPNGの書き出し、複数画像プロジェクト管理など、ドット絵制作に便利な機能を備えています。
+        </p>
+
+        <h3>主な特徴</h3>
+        <ul>
+            <li>レイヤー・フレームによるアニメーション編集</li>
+            <li>PNG/JPG/WEBP/GIF/APNG形式でのエクスポート</li>
+            <li>プロジェクトの保存・読み込み（ローカル/IndexedDB）</li>
+            <li>スマホ・タブレット対応</li>
+            <li>完全無料・インストール不要</li>
+        </ul>
+        <h2>始める</h2>
+        <div style="display: flex; flex-direction: column; align-items: center;" class="terms-iframe">
+            <iframe src="/terms/index.html?Isitacceptable=true" width="600" height="400"></iframe>
+            <a href="/" class="terms-link" onclick="localStorage.setItem('agreedToTerms', 'yes')">
+                利用規約に同意して始める
+            </a>
+        </div>
+        <h3>作者情報</h3>
+        <ul>
+            <li>作者: <a href="https://github.com/mouse0329" target="_blank" rel="noopener noreferrer">mouse0329</a></li>
+            <li>GitHub: <a href="https://github.com/mouse0329/mouse-sketch" target="_blank"
+                    rel="noopener noreferrer">mouse-sketch</a></li>
+        </ul>
+
+        <h3>ご意見・ご要望</h3>
+        <p>
+            バグ報告・機能要望などはGitHubリポジトリの
+            <a href="https://github.com/mouse0329/mouse-sketch/issues" target="_blank"
+                rel="noopener noreferrer">Issues</a>
+            までお気軽にどうぞ！
+        </p>
+    </main>
+
+    <footer>
+        <p>© 2025 nezumi-sketch <a href="https://github.com/mouse0329" rel="noopener noreferrer">github mouse0329</a>.
+            All Rights Reserved.</p>
+    </footer>
+    <script>
+        // ネズミの散布アニメーション
+        const nezumiElements = document.querySelectorAll('.nezumi.scatter');
+        nezumiElements.forEach(nezumi => {
+            const randomX = Math.random() * 100;
+            const randomY = Math.random() * 100;
+            nezumi.style.left = `${randomX}vw`;
+            nezumi.style.top = `${randomY}vh`;
+        });
+
+        const agreed = localStorage.getItem('agreedToTerms');
+        if (agreed === 'yes') {
+            const termsIframe = document.querySelector('.terms-iframe');
+            if (termsIframe) termsIframe.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

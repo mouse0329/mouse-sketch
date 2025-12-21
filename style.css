@@ -208,6 +208,9 @@ header#header {
     gap: 12px;
 }
 
+tool-separator {
+
+}
 header#header h1 {
     margin: 0;
     font-size: 1.05rem;
@@ -218,18 +221,74 @@ header#header h1 {
 } 
 
 #main-container {
-    display: flex;
-    justify-content: center;
-    align-items: stretch; /* allow children to stretch vertically */
+    display: grid;
+    grid-template-columns: 260px 1fr 320px;
     gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
     padding: 12px;
+    height: calc(100vh - 84px); /* header + spacing approximation */
+    overflow: hidden;
 }
 
-/* Make sidebar use fixed width and main panel take remaining space */
-#sidebar { flex: 0 0 280px; }
-#main-panel { flex: 1 1 auto; max-width: none; display:flex; flex-direction: column; }
+/* Left sidebar */
+#sidebar {
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 0;
+    overflow-y: auto;
+}
+
+/* Center panel (canvas) */
+#main-panel {
+    min-width: 340px;
+    max-width: none;
+    display:flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Right tools panel */
+#right-panel {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-y: auto;
+    padding-left: 4px;
+}
+
+/* Right toolbar layout */
+.right-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, 56px);
+    gap: 8px;
+    justify-content: center;
+    padding: 12px;
+}
+
+#right-panel .export-group {
+    margin: 12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+/* Responsive: collapse to two columns on narrower screens */
+@media (max-width: 1100px) {
+    #main-container {
+        grid-template-columns: 1fr 320px;
+    }
+    #sidebar { display: none; }
+}
+
+@media (max-width: 800px) {
+    #main-container { grid-template-columns: 1fr; }
+    #right-panel { position: fixed; right: 0; top: 64px; height: calc(100vh - 64px); transform: translateX(100%); transition: transform 0.2s; }
+    #right-panel.open { transform: translateX(0); }
+}
 
 /* Make canvas area expand to available space */
 #canvas-container {

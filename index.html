@@ -10,6 +10,8 @@
     <meta name="keywords" content="ドット絵, アニメーション, 無料, ツール, GIF, APNG, 簡単, ピクセルアート, ドット絵ツール">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="mouse0329">
+        <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#1976d2">
 
     <!-- ✅ SNS シェア対応 (OGP) -->
     <meta property="og:title" content="ネズミスケッチ - ドット絵アニメーション制作ツール">
@@ -58,17 +60,16 @@
                 <div id="projectList" aria-label="プロジェクト一覧"></div>
             </div>
             <button id="themeToggleBtn" class="icon-btn" aria-label="テーマ切替" title="テーマ切替">🌙</button>
+            <button id="toolsToggleBtn" class="icon-btn" aria-label="ツールを開く" title="ツール" style="display:none;">🧰</button>
             <button id="menu-toggle-btn" onclick="toggleSideMenu()" aria-label="メニューを開く" style="display:none;">☰</button>
         </div>
     </header>
 
     <div id="main-container">
         <div id="sidebar" class="sidepanel">
-            <button id="menu-toggle-btn-close" class="menu-close" onclick="toggleSideMenu()" style="display:none;"
-                aria-label="メニューを閉じる">×</button>
+            <button id="menu-toggle-btn-close" class="menu-close" onclick="toggleSideMenu()" style="display:none;" aria-label="メニューを閉じる">×</button>
             <div class="sidepanel-scroll" style="overflow: auto">
 
-                <!-- フレーム -->
                 <section class="section collapsible" id="frame-section">
                     <div class="section-header" onclick="toggleSection('frame-section')">
                         <h2>フレーム</h2>
@@ -86,17 +87,29 @@
                             <button onclick="stopAnimation()">
                                 <span class="material-icons" style="vertical-align: middle;">stop</span> 停止
                             </button>
-                            <label style="margin-left:12px; display:flex; align-items:center; gap:8px;">
+                            <label style="margin-left:12px; display:flex; align-items:center; gap:8px; margin-top:8px;">
                                 速度(ms):
-                                <input id="animSpeedRange" type="range" min="50" max="1000" step="10" value="300" style="vertical-align: middle; width:140px;">
+                                <input id="animSpeedRange" type="range" min="50" max="1000" step="10" value="300" style="vertical-align: middle; width:100px;">
                                 <input id="animSpeedValue" type="number" min="50" max="5000" step="10" value="300" style="width:64px;">
                             </label>
+            <script>
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+                    // 登録成功
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                  }, function(err) {
+                    // 登録失敗
+                    console.log('ServiceWorker registration failed: ', err);
+                  });
+                });
+              }
+            </script>
                         </div>
                         <div id="frameList"></div>
                     </div>
                 </section>
 
-                <!-- レイヤー -->
                 <section class="section collapsible" id="layer-section">
                     <div class="section-header" onclick="toggleSection('layer-section')">
                         <h2>レイヤー</h2>
@@ -109,121 +122,36 @@
                             </button>
                             <button id="copyLayerBtn" class="layer-action-btn" title="アクティブレイヤーをコピー">コピー</button>
                             <button id="pasteLayerBtn" class="layer-action-btn" title="コピーしたレイヤーを貼り付け" disabled>ペースト</button>
-                            <div style="display:inline-flex; gap:6px; align-items:center; margin-left:8px;">
+                            <div style="display:flex; gap:6px; align-items:center; margin-top:8px;">
                                 <button id="nudgeUpBtn" class="layer-action-btn" title="上に移動">↑</button>
                                 <button id="nudgeLeftBtn" class="layer-action-btn" title="左に移動">←</button>
                                 <button id="nudgeRightBtn" class="layer-action-btn" title="右に移動">→</button>
                                 <button id="nudgeDownBtn" class="layer-action-btn" title="下に移動">↓</button>
                                 <label style="margin-left:6px; font-size:13px;">量:<input id="nudgeStep" type="number" value="1" min="1" style="width:48px; margin-left:6px;"></label>
                             </div>
-                            <span id="layerExportStatus" style="margin-left:8px; font-size:13px; color:var(--muted,#444);"></span>
                             <span id="layerCount"></span>
                         </div>
                         <div id="layerList"></div>
                     </div>
                 </section>
-
-                <!-- ツール -->
-                <section class="section collapsible" id="tool-section">
-                    <div class="section-header" onclick="toggleSection('tool-section')">
-                        <h2>ツール・操作</h2>
-                        <span class="toggle-btn" id="toggle-tool-section">▼</span>
-                    </div>
-                    <div class="section-content" id="tool-section-content">
-                        <div id="controls">
-                            <div class="tool-group">
-                                <button class="tool-btn active" data-tool="pen" onclick="setTool('pen')">
-                                    <span class="material-icons" style="vertical-align: middle;">edit</span> ペン
-                                </button>
-                                <button class="tool-btn" data-tool="fill" onclick="setTool('fill')">
-                                    <span class="material-icons"
-                                        style="vertical-align: middle;">format_color_fill</span> 塗りつぶし
-                                </button>
-                                <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')">
-                                    消しゴム
-                                </button>
-                                <button class="tool-btn" data-tool="pan" onclick="setTool('pan')">
-                                    <span class="material-icons" style="vertical-align: middle;">open_with</span> 移動
-                                </button>
-                                <button class="tool-btn" data-tool="moveLayer" onclick="setTool('moveLayer')">
-                                    <span class="material-icons" style="vertical-align: middle;">transform</span> レイヤー移動
-                                </button>
-
-                                <input type="color" id="colorPicker" value="#ff0000" title="色を選択"
-                                    style="vertical-align: middle;">
-                                <label style="margin-left:8px;">
-                                    太さ:
-                                    <select id="penSize" onchange="setPenSize(this.value)">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                    </select>
-                                </label>
-                                <label style="margin-left:8px;">
-                                    <select id="penMode" onchange="setPenMode(this.value)">
-                                        <option value="square">四角ペン</option>
-                                        <option value="circle">丸ペン</option>
-                                    </select>
-                                </label>
-                                <label style="margin-left:8px;">
-                                    透明度:
-                                    <input type="range" id="alphaSlider" min="0" max="100" value="100"
-                                        style="vertical-align: middle; width:70px;">
-                                    <span id="alphaValue">100%</span>
-                                </label>
-                                <label style="margin-left:12px;">
-                                    ズーム:
-                                    <button onclick="zoomOut()" title="ズームアウト">-</button>
-                                    <input type="range" id="zoomSlider" min="20" max="500" value="100" style="vertical-align: middle; width:120px;">
-                                    <button onclick="zoomIn()" title="ズームイン">+</button>
-                                    <span id="zoomValue">100%</span>
-                                </label>
-                            </div>
-                            <div class="action-group">
-                                <button onclick="undo()">
-                                    <span class="material-icons" style="vertical-align: middle;">undo</span> 戻す
-                                </button>
-                                <button onclick="redo()">
-                                    <span class="material-icons" style="vertical-align: middle;">redo</span> 戻すを戻す
-                                </button>
-                            </div>
-                            <div class="export-group">
-                                <button onclick="exportImage('png')">
-                                    <span class="material-icons" style="vertical-align: middle;">file_download</span>
-                                    PNG
-                                </button>
-                                <button onclick="exportImage('jpg')">
-                                    <span class="material-icons" style="vertical-align: middle;">file_download</span>
-                                    JPG
-                                </button>
-                                <button onclick="exportImage('webp')">
-                                    <span class="material-icons" style="vertical-align: middle;">file_download</span>
-                                    WEBP
-                                </button>
-                                <button onclick="exportGif()">
-                                    <span class="material-icons" style="vertical-align: middle;">gif</span> GIF
-                                </button>
-                                <button onclick="exportApng()">
-                                    <span class="material-icons" style="vertical-align: middle;">animation</span> APNG
-                                </button>
-                                <button onclick="exportStandalone()" title="APNGにプロジェクトデータを埋め込んだ単体ファイルを出力">
-                                    <span class="material-icons" style="vertical-align: middle;">save_alt</span> 単体エクスポート
-                                </button>
-                                <button onclick="exportSpriteSheetDialog()" title="Unity向け 横並びスプライトシートを出力">
-                                    <span class="material-icons" style="vertical-align: middle;">view_column</span> スプライトシート
-                                </button>
-                                <button id="exportFramesZipBtn" class="btn" onclick="exportFramesLayersZip()" title="フレームごとにレイヤーをPNGとしてZIPで出力">フレーム別ZIP</button>
-                                                            <button id="exportLayerGifBtn" class="layer-action-btn" title="各レイヤーをGIFアニメで書き出す">レイヤー別GIF</button>
-                            <button id="exportLayerApngBtn" class="layer-action-btn" title="各レイヤーをAPNGで書き出す">レイヤー別APNG</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
             </div>
+
+            <section class="section" id="export-section">
+                <div class="section-header">
+                    <h2>出力</h2>
+                </div>
+                <div class="section-content">
+                    <div class="export-group">
+                        <button onclick="exportImage('png')">PNG</button>
+                        <button onclick="exportGif()">GIF</button>
+                        <button onclick="exportApng()">APNG</button>
+                        <button onclick="exportSpriteSheetDialog()">スプライトシート</button>
+                        <button id="exportFramesZipBtn" class="btn" onclick="exportFramesLayersZip()">ZIP保存</button>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <!-- メインパネル -->
         <div id="main-panel">
             <section class="section">
                 <h2>キャンバス</h2>
@@ -231,22 +159,71 @@
                     <canvas id="canvas" style="display:block; max-width:none; max-height:none;" tabindex="0" aria-label="描画キャンバス"></canvas>
                 </div>
             </section>
-            <div id="color-palette" class="palette-bar"></div>
-            <div id="used-colors-tools" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
-                <button id="scanColorsBtn" class="palette-toolbar tool-btn">使われている色</button>
-                <div id="scanColorsPanel" class="used-colors-panel" style="display:none;"></div>
-            </div>
+            <div class="tool-btn-container" style="margin-top:12px;">
+                <div id="color-palette" class="palette-bar"></div>
+                </div>
+        </div>
+
+        <div id="right-panel" class="sidepanel">
+            <section class="section collapsible" id="tools-right-section">
+                <div class="section-header" onclick="toggleSection('tools-right-section')">
+                    <h2>ツール</h2>
+                    <span class="toggle-btn">▼</span>
+                </div>
+                <div class="section-content">
+                    <div id="right-toolbar" class="right-toolbar">
+                        <button class="tool-btn" data-tool="pen" onclick="setTool('pen')" title="ペン"><span class="material-icons">edit</span></button>
+                        <button class="tool-btn" data-tool="fill" onclick="setTool('fill')" title="塗りつぶし"><span class="material-icons">format_color_fill</span></button>
+                        <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')" title="消しゴム"><span class="material-icons">delete</span></button>
+                        <button class="tool-btn" data-tool="pan" onclick="setTool('pan')" title="移動"><span class="material-icons">open_with</span></button>
+                        <button class="tool-btn" data-tool="moveLayer" onclick="setTool('moveLayer')" title="レイヤー移動"><span class="material-icons">transform</span></button>
+                        
+                        <div style="grid-column: span 2; display:flex; gap:8px; align-items:center; justify-content:center; margin: 8px 0;">
+                            <input type="color" id="colorPicker" value="#ff0000" title="色を選択">
+                            <button id="colorPickerDialogBtn" title="色と透明を設定">色・透明</button>
+                        </div>
+
+                        <div style="grid-column: span 2; display:flex; gap:4px; margin-bottom:8px;">
+                            <button onclick="undo()" style="flex:1;"><span class="material-icons">undo</span> 戻す</button>
+                            <button onclick="redo()" style="flex:1;"><span class="material-icons">redo</span> 進む</button>
+                        </div>
+
+                        <div id="scanColorsPanel" class="used-colors-panel" style="margin-top:16px;"></div>
+
+                        <label style="grid-column: span 2; display:flex; gap:8px; align-items:center; justify-content:center;">
+                            太さ:
+                            <select id="penSize" onchange="setPenSize(this.value)">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                            形状:
+                            <select id="penMode" onchange="setPenMode(this.value)">
+                                <option value="square">四角</option>
+                                <option value="circle">丸</option>
+                            </select>
+                        </label>
+
+                        <div style="grid-column: span 2; display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px;">
+                            <button onclick="zoomOut()" title="ズームアウト">-</button>
+                            <input type="range" id="zoomSlider" min="20" max="500" value="100" style="width:80px;">
+                            <button onclick="zoomIn()" title="ズームイン">+</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
-    <footer>
-        <p>© 2025 nezumi-sketch <a href="https://github.com/mouse0329" rel="noopener noreferrer">github mouse0329</a>.
-            All Rights Reserved.</p>
-        <p><a href="/terms">利用規約</a>　<a href="/license">ライセンス</a></p>
-        <p><a href="/about">紹介ページ</a></p>
-    </footer>
+    <!-- フッターを右パネル下部に移動 -->
+        <footer>
+            <p>© 2025 nezumi-sketch <a href="https://github.com/mouse0329" rel="noopener noreferrer">github mouse0329</a>.
+                All Rights Reserved.</p>
+            <p><a href="/terms">利用規約</a>　<a href="/license">ライセンス</a></p>
+            <p><a href="/about">紹介ページ</a></p>
+        </footer>
 
-    <!-- ✅ スクリプト -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js" referrerpolicy="no-referrer"></script>
     <script src="script.js"></script>
 </body>

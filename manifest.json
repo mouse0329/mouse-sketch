@@ -1,6 +1,6 @@
 {
-  "name": "mouse-sketch-dev",
-  "short_name": "SketchDev",
+  "name": "mouse-sketch",
+  "short_name": "Sketch",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",

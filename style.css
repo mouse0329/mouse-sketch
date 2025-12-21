@@ -1,3 +1,9 @@
+/* 今の色スウォッチ用チェッカーボード背景 */
+#currentColorSwatch.checker {
+    background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 12px 12px;
+    position: relative;
+    overflow: hidden;
+}
 :root {
     --bg: #f7f9fc;
     --surface: #ffffff;
@@ -245,7 +251,6 @@ header#header h1 {
 #main-panel {
     min-width: 340px;
     max-width: none;
-    display:flex;
     flex-direction: column;
     overflow: hidden;
 }
@@ -277,12 +282,6 @@ header#header h1 {
 }
 
 /* Responsive: collapse to two columns on narrower screens */
-@media (max-width: 1100px) {
-    #main-container {
-        grid-template-columns: 1fr 320px;
-    }
-    #sidebar { display: none; }
-}
 
 @media (max-width: 800px) {
     #main-container { grid-template-columns: 1fr; }
@@ -843,6 +842,9 @@ canvas {
     max-width: 480px;
     display: grid;
     gap: 6px;
+    height: 200px;
+    width: 150px;
+    overflow-y: auto;
 }
 .used-color-grid {
     display: grid;
@@ -928,7 +930,7 @@ canvas {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     #main-container {
         padding: 0;
         margin-right: 0 !important;

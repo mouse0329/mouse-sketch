@@ -1,6 +1,6 @@
 {
   "name": "mouse-sketch",
-  "short_name": "Sketch",
+  "short_name": "sketch",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",

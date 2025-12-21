@@ -142,6 +142,11 @@
                 </div>
                 <div class="section-content">
                     <div class="export-group">
+                        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                            画質:
+                            <input id="exportQuality" type="range" min="1" max="10" value="8" style="width:100px;">
+                            <span id="exportQualityValue">8</span>
+                        </label>
                         <button onclick="exportImage('png')">PNG</button>
                         <button onclick="exportGif()">GIF</button>
                         <button onclick="exportApng()">APNG</button>
@@ -179,8 +184,10 @@
                         <button class="tool-btn" data-tool="moveLayer" onclick="setTool('moveLayer')" title="レイヤー移動"><span class="material-icons">transform</span></button>
                         
                         <div style="grid-column: span 2; display:flex; gap:8px; align-items:center; justify-content:center; margin: 8px 0;">
-                            <input type="color" id="colorPicker" value="#ff0000" title="色を選択">
-                            <button id="colorPickerDialogBtn" title="色と透明を設定">色・透明</button>
+                            <div id="currentColorSwatch" style="width:32px; height:32px; border-radius:8px; border:2px solid #888; background:#ff0000;"></div>
+                            <button id="openColorPickerBtn" title="カラーピッカーを開く" style="flex:1;">
+                                <span class="material-icons" style="vertical-align:middle;">palette</span> カラーピッカー
+                            </button>
                         </div>
 
                         <div style="grid-column: span 2; display:flex; gap:4px; margin-bottom:8px;">
@@ -202,6 +209,11 @@
                             <select id="penMode" onchange="setPenMode(this.value)">
                                 <option value="square">四角</option>
                                 <option value="circle">丸</option>
+                            </select>
+                            アルファ:
+                            <select id="penAlphaMode" title="半透明長押し挙動" value="flat">
+                                <option value="normal">濃くなる</option>
+                                <option value="flat">均一</option>
                             </select>
                         </label>
 
@@ -225,6 +237,9 @@
         </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js" referrerpolicy="no-referrer"></script>
+        <script src="ColorPicker.js"></script>
+    <script src="ColorPickerDialog.js"></script>
+    <script src="ColorPickerPaletteDialog.js"></script>
     <script src="script.js"></script>
 </body>
 

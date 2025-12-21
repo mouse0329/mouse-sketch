@@ -22,13 +22,16 @@ const urlsToCache = [
   '/terms/index.html',
 ];
 
+// インストール時に基本ファイルをキャッシュ
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
+      .then(() => self.skipWaiting()) // 新しいSWを即アクティブ化
   );
 });
 
+// アクティベート時に古いキャッシュを削除
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -36,19 +39,26 @@ self.addEventListener('activate', event => {
         cacheNames.filter(name => name !== CACHE_NAME)
           .map(name => caches.delete(name))
       );
-    })
+    }).then(() => self.clients.claim()) // 全クライアントに新SWを適用
   );
 });
 
+// フェッチ時：オンライン優先、オフラインはキャッシュ
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).catch(() => {
-          // オフライン時のフォールバック
+    fetch(event.request) // まずネットから取得
+      .then(networkResponse => {
+        // ネット取得成功したらキャッシュも更新
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
+      })
+      .catch(() => {
+        // ネットがダメならキャッシュから取得
+        return caches.match(event.request).then(cachedResponse => {
+          if (cachedResponse) return cachedResponse;
+          // キャッシュにも無い場合はページならindex.htmlを返す
           if (event.request.destination === 'document') {
             return caches.match('/index.html');
           }

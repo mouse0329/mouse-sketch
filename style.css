@@ -214,6 +214,46 @@ header#header {
     gap: 12px;
 }
 
+/* header 内の project リストが増えすぎてレイアウト崩れする問題の対策 */
+.header-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0; /* allow flex children to shrink */
+    max-width: 45%;
+}
+#projectList {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+/* 各プロジェクト項目は横並びで縮まないようにする */
+.project-item {
+    flex: 0 0 auto;
+}
+@media (max-width: 900px) {
+    .header-meta { max-width: 60%; }
+}
+
+
+/* モバイル用ツールバー（移動時の見た目） */
+.toolbar-mobile {
+    border-radius:8px;
+    padding:8px;
+    background:var(--surface);
+}
+.toolbar-mobile.mobile-open {
+    display:block !important;
+}
+
+/* About ダイアログの調整 */
+#about-dialog > div {
+    max-height:80vh;
+    overflow:auto;
+}
+
 tool-separator {
 
 }
@@ -281,9 +321,14 @@ header#header h1 {
     gap:8px;
 }
 
+.toolbar-mobile{
+    /*スクロールy軸のみ*/
+    overflow-y: auto;
+}
+
 /* Responsive: collapse to two columns on narrower screens */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
     #main-container { grid-template-columns: 1fr; }
     #right-panel { position: fixed; right: 0; top: 64px; height: calc(100vh - 64px); transform: translateX(100%); transition: transform 0.2s; }
     #right-panel.open { transform: translateX(0); }
@@ -432,6 +477,43 @@ canvas {
 .export-group {
     align-items: center;
 }
+
+/* Loading overlay */
+#loading-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.45);
+    z-index: 20000;
+}
+#loading-overlay .loading-box {
+    background: var(--surface);
+    color: var(--muted);
+    padding: 16px 20px;
+    border-radius: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+#loading-overlay .spinner {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 4px solid rgba(0,0,0,0.08);
+    border-top-color: var(--primary);
+    animation: nezumi-spin 1s linear infinite;
+}
+@keyframes nezumi-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  #loading-overlay .spinner { animation: none; }
+}
+
+/* helper to show via inline style (JS sets display:flex) */
+#loading-overlay[hidden] { display: none !important; }
 
 .tool-btn {
     margin-left: 0;

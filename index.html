@@ -59,6 +59,7 @@
                 <span id="projectCount"></span>
                 <div id="projectList" aria-label="プロジェクト一覧"></div>
             </div>
+            <button id="aboutBtn" class="btn" onclick="showAboutDialog()"><span class="material-icons">info</span> このアプリについて</button>
             <button id="themeToggleBtn" class="icon-btn" aria-label="テーマ切替" title="テーマ切替">🌙</button>
             <button id="toolsToggleBtn" class="icon-btn" aria-label="ツールを開く" title="ツール" style="display:none;">🧰</button>
             <button id="menu-toggle-btn" onclick="toggleSideMenu()" aria-label="メニューを開く" style="display:none;">☰</button>
@@ -150,6 +151,7 @@
                         <button onclick="exportImage('png')">PNG</button>
                         <button onclick="exportGif()">GIF</button>
                         <button onclick="exportApng()">APNG</button>
+                        <button id="exportStandaloneApngBtn" title="プロジェクト情報を埋め込んだAPNGをダウンロード" onclick="exportStandalone()">APNG（メタデータ入）</button>
                         <button onclick="exportSpriteSheetDialog()">スプライトシート</button>
                         <button id="exportFramesZipBtn" class="btn" onclick="exportFramesLayersZip()">ZIP保存</button>
                     </div>
@@ -191,8 +193,8 @@
                         </div>
 
                         <div style="grid-column: span 2; display:flex; gap:4px; margin-bottom:8px;">
-                            <button onclick="undo()" style="flex:1;"><span class="material-icons">undo</span> 戻す</button>
-                            <button onclick="redo()" style="flex:1;"><span class="material-icons">redo</span> 進む</button>
+                            <button id="undoBtn" onclick="undo()" style="flex:1;"><span class="material-icons">undo</span> 戻す</button>
+                            <button id="redoBtn" onclick="redo()" style="flex:1;"><span class="material-icons">redo</span> 進む</button>
                         </div>
 
                         <div id="scanColorsPanel" class="used-colors-panel" style="margin-top:16px;"></div>
@@ -228,19 +230,48 @@
         </div>
     </div>
 
-    <!-- フッターを右パネル下部に移動 -->
-        <footer>
-            <p>© 2025 nezumi-sketch <a href="https://github.com/mouse0329" rel="noopener noreferrer">github mouse0329</a>.
-                All Rights Reserved.</p>
-            <p><a href="/terms">利用規約</a>　<a href="/license">ライセンス</a></p>
-            <p><a href="/about">紹介ページ</a></p>
+<!-- フッターをダイアログ式に変更：フッター表示はダイアログで行う -->
+        <footer style="display:none;" id="site-footer">
+            <!-- フッターコンテンツはダイアログで表示します -->
         </footer>
 
+    <!-- ロード中オーバーレイ -->
+    <div id="loading-overlay" style="display:none;">
+      <div class="loading-box" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <div id="loading-message">読み込み中…</div>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js" referrerpolicy="no-referrer"></script>
-        <script src="ColorPicker.js"></script>
-    <script src="ColorPickerDialog.js"></script>
-    <script src="ColorPickerPaletteDialog.js"></script>
-    <script src="script.js"></script>
+<!-- ① グローバル変数定義（必ず最初） -->
+<script src="js/globals.js"></script>
+
+<!-- ② 共通ユーティリティ -->
+<script src="js/misc.js"></script>
+
+<!-- ③ データ・状態管理 -->
+<script src="js/project.js"></script>
+<script src="js/storage.js"></script>
+
+<!-- ④ 色・計算系 -->
+<script src="js/color.js"></script>
+<script src="js/ColorPicker.js"></script>
+<script src="js/ColorPickerDialog.js"></script>
+<script src="js/ColorPickerPaletteDialog.js"></script>
+
+<!-- ⑤ 描画エンジン -->
+<script src="js/draw.js"></script>
+
+<!-- ⑥ UIロジック -->
+<script src="js/ui.js"></script>
+
+<!-- ⑦ Export系（UIや描画に依存する） -->
+<script src="js/export.js"></script>
+
+<!-- ⑧ イベント登録（必ず最後！） -->
+<script src="js/event.js"></script>
+
 </body>
 
 </html>

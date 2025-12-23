@@ -27,6 +27,9 @@
     <!-- ✅ CSS / Google Fonts -->
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 
     <!-- ✅ JSライブラリ -->
     <script src="lib/gif.js"></script>
@@ -42,7 +45,7 @@
         <div class="header-left">
             <h1>
                 <img src="/img/nezumi-drawing_icon.webp" alt="ネズミスケッチアイコン" class="header-icon" width="36">
-                <span class="app-title">ネズミスケッチ</span>
+                <span class="app-title dotgothic16-regular">ネズミスケッチ</span>
                 <small class="app-sub">ドット絵アニメーション制作ツール</small>
             </h1>
         </div>
@@ -82,12 +85,13 @@
                                 <span class="material-icons" style="vertical-align: middle;">add_box</span> フレーム追加
                             </button>
                             <span id="frameCount"></span>
-                            <button onclick="playAnimation()">
+                            <button id="playBtn" onclick="playAnimation()">
                                 <span class="material-icons" style="vertical-align: middle;">play_arrow</span> 再生
                             </button>
-                            <button onclick="stopAnimation()">
+                            <button id="stopBtn" onclick="stopAnimation()">
                                 <span class="material-icons" style="vertical-align: middle;">stop</span> 停止
                             </button>
+                            <span id="animStatus" class="pill" hidden>再生中</span>
                             <label style="margin-left:12px; display:flex; align-items:center; gap:8px; margin-top:8px;">
                                 速度(ms):
                                 <input id="animSpeedRange" type="range" min="50" max="1000" step="10" value="300" style="vertical-align: middle; width:100px;">
@@ -129,6 +133,7 @@
                                 <button id="nudgeRightBtn" class="layer-action-btn" title="右に移動">→</button>
                                 <button id="nudgeDownBtn" class="layer-action-btn" title="下に移動">↓</button>
                                 <label style="margin-left:6px; font-size:13px;">量:<input id="nudgeStep" type="number" value="1" min="1" style="width:48px; margin-left:6px;"></label>
+                            <button id="frontDimBtn" class="layer-action-btn" title="アクティブより上を薄く表示">前面透過</button>
                             </div>
                             <span id="layerCount"></span>
                         </div>
@@ -168,7 +173,7 @@
             </section>
             <div class="tool-btn-container" style="margin-top:12px;">
                 <div id="color-palette" class="palette-bar"></div>
-                </div>
+            </div>
         </div>
 
         <div id="right-panel" class="sidepanel">
@@ -179,27 +184,31 @@
                 </div>
                 <div class="section-content">
                     <div id="right-toolbar" class="right-toolbar">
-                        <button class="tool-btn" data-tool="pen" onclick="setTool('pen')" title="ペン"><span class="material-icons">edit</span></button>
-                        <button class="tool-btn" data-tool="fill" onclick="setTool('fill')" title="塗りつぶし"><span class="material-icons">format_color_fill</span></button>
-                        <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')" title="消しゴム"><span class="material-icons">delete</span></button>
-                        <button class="tool-btn" data-tool="pan" onclick="setTool('pan')" title="移動"><span class="material-icons">open_with</span></button>
-                        <button class="tool-btn" data-tool="moveLayer" onclick="setTool('moveLayer')" title="レイヤー移動"><span class="material-icons">transform</span></button>
-                        
-                        <div style="grid-column: span 2; display:flex; gap:8px; align-items:center; justify-content:center; margin: 8px 0;">
-                            <div id="currentColorSwatch" style="width:32px; height:32px; border-radius:8px; border:2px solid #888; background:#ff0000;"></div>
-                            <button id="openColorPickerBtn" title="カラーピッカーを開く" style="flex:1;">
-                                <span class="material-icons" style="vertical-align:middle;">palette</span> カラーピッカー
-                            </button>
+                        <div class="toolbar-row primary-tools">
+                            <button class="tool-btn" data-tool="pen" onclick="setTool('pen')" title="ペン (基本)"><span class="material-icons">edit</span></button>
+                            <button class="tool-btn" data-tool="fill" onclick="setTool('fill')" title="塗りつぶし"><span class="material-icons">format_color_fill</span></button>
+                            <button class="tool-btn" data-tool="eraser" onclick="setTool('eraser')" title="消しゴム"><span class="material-icons">delete</span></button>
+                            <button class="tool-btn" data-tool="pan" onclick="setTool('pan')" title="移動 (Shiftで一時切替)"><span class="material-icons">open_with</span></button>
+                        </div>
+                        <div class="toolbar-row secondary-tools">
+                            <button class="tool-btn" data-tool="moveLayer" onclick="setTool('moveLayer')" title="レイヤー移動"><span class="material-icons">transform</span></button>
+                            <button class="tool-btn" id="gridToggleBtn" onclick="toggleGrid()" title="グリッドON/OFF"><span class="material-icons">grid_on</span></button>
+                            <button class="tool-btn" id="undoBtn" onclick="undo()" title="Undo (Ctrl+Z)"><span class="material-icons">undo</span></button>
+                            <button class="tool-btn" id="redoBtn" onclick="redo()" title="Redo (Ctrl+Y / Ctrl+Shift+Z)"><span class="material-icons">redo</span></button>
+                        </div>
+                        <div class="color-info">
+                            <div id="currentColorSwatch" class="color-swatch"></div>
+                            <div class="color-meta">
+                                <div id="currentColorInfoText">#ff0000 / 100%</div>
+                                <button id="openColorPickerBtn" class="wide-btn" title="カラーピッカーを開く">
+                                    <span class="material-icons" style="vertical-align:middle;">palette</span> カラーピッカー
+                                </button>
+                            </div>
                         </div>
 
-                        <div style="grid-column: span 2; display:flex; gap:4px; margin-bottom:8px;">
-                            <button id="undoBtn" onclick="undo()" style="flex:1;"><span class="material-icons">undo</span> 戻す</button>
-                            <button id="redoBtn" onclick="redo()" style="flex:1;"><span class="material-icons">redo</span> 進む</button>
-                        </div>
+                        <div id="scanColorsPanel" class="used-colors-panel" style="margin-top:8px;"></div>
 
-                        <div id="scanColorsPanel" class="used-colors-panel" style="margin-top:16px;"></div>
-
-                        <label style="grid-column: span 2; display:flex; gap:8px; align-items:center; justify-content:center;">
+                        <label class="pen-controls">
                             太さ:
                             <select id="penSize" onchange="setPenSize(this.value)">
                                 <option value="1">1</option>
@@ -219,7 +228,7 @@
                             </select>
                         </label>
 
-                        <div style="grid-column: span 2; display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px;">
+                        <div class="zoom-controls">
                             <button onclick="zoomOut()" title="ズームアウト">-</button>
                             <input type="range" id="zoomSlider" min="20" max="500" value="100" style="width:80px;">
                             <button onclick="zoomIn()" title="ズームイン">+</button>

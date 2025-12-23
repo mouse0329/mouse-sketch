@@ -133,7 +133,7 @@
                                 <button id="nudgeRightBtn" class="layer-action-btn" title="右に移動">→</button>
                                 <button id="nudgeDownBtn" class="layer-action-btn" title="下に移動">↓</button>
                                 <label style="margin-left:6px; font-size:13px;">量:<input id="nudgeStep" type="number" value="1" min="1" style="width:48px; margin-left:6px;"></label>
-                            <button id="frontDimBtn" class="layer-action-btn" title="アクティブより上を薄く表示">前面透過</button>
+                            <button id="frontDimBtn" class="layer-action-btn" style="display:none;" title="アクティブより上を薄く表示">前面透過</button>
                             </div>
                             <span id="layerCount"></span>
                         </div>
@@ -153,12 +153,32 @@
                             <input id="exportQuality" type="range" min="1" max="10" value="8" style="width:100px;">
                             <span id="exportQualityValue">8</span>
                         </label>
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                                出力サイズ(px):
+                                <input id="exportWidthPx" type="number" min="1" style="width:90px;" placeholder="幅" title="幅(px)">
+                                ×
+                                <input id="exportHeightPx" type="number" min="1" style="width:90px;" placeholder="高さ" title="高さ(px)">
+                                <small style="color:#666;">未入力は現在の解像度、片方のみ入力で比率維持</small>
+                            </div>
                         <button onclick="exportImage('png')">PNG</button>
                         <button onclick="exportGif()">GIF</button>
-                        <button onclick="exportApng()">APNG</button>
+                        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                            <button onclick="exportApng()">APNG</button>
+                            <label style="display:flex; align-items:center; gap:4px;">
+                                拡張子:
+                                <select id="apngExtSelect">
+                                    <option value="apng">.apng</option>
+                                    <option value="png">.png</option>
+                                </select>
+                            </label>
+                        </div>
                         <button id="exportStandaloneApngBtn" title="プロジェクト情報を埋め込んだAPNGをダウンロード" onclick="exportStandalone()">APNG（メタデータ入）</button>
                         <button onclick="exportSpriteSheetDialog()">スプライトシート</button>
                         <button id="exportFramesZipBtn" class="btn" onclick="exportFramesLayersZip()">ZIP保存</button>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
+                            <button onclick="exportCurrentFrameMergedPng()" title="現在のフレームを統合PNGで保存">統合PNG</button>
+                            <button onclick="exportCurrentFrameLayersPngZip()" title="現在フレームの各レイヤーPNGをZIPで保存">レイヤーPNG ZIP</button>
+                        </div>
                     </div>
                 </div>
             </section>

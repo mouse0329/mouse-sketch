@@ -52,7 +52,8 @@
         <div class="header-controls">
             <div class="header-actions">
                 <button class="btn" onclick="addProject()"><span class="material-icons">add_photo_alternate</span> 画像追加</button>
-                <button class="btn" onclick="saveProjectFile()"><span class="material-icons">save</span> 保存</button>
+                <button class="btn" onclick="saveProjectFile()" title="ファイル保存をダウンロード"><span class="material-icons">download</span> ダウンロード</button>
+                <button class="btn" id="manualSaveBtn" onclick="manualSave()" title="IndexedDBへ保存（Ctrl/Cmd+S）"><span class="material-icons">save</span> 手動保存</button>
                 <label class="file-load-label">
                     <input type="file" id="loadProjectFile" accept=".msketch,application/json,image/*" style="display:none" onchange="loadProjectFile(event)">
                     <span class="file-load-btn"><span class="material-icons">folder_open</span> 開く</span>
@@ -61,6 +62,10 @@
             <div class="header-meta">
                 <span id="projectCount"></span>
                 <div id="projectList" aria-label="プロジェクト一覧"></div>
+            </div>
+            <div id="autosaveIndicator" class="autosave-status" title="自動保存の状態" aria-live="polite">
+                <span id="autosaveIcon" class="material-icons autosave-icon">check_circle</span>
+                <span id="autosaveText">保存済み</span>
             </div>
             <button id="aboutBtn" class="btn" onclick="showAboutDialog()"><span class="material-icons">info</span> このアプリについて</button>
             <button id="themeToggleBtn" class="icon-btn" aria-label="テーマ切替" title="テーマ切替">🌙</button>
@@ -235,6 +240,12 @@
                                 <option value="2">2</option>
                                 <option value="3">3</option>
                                 <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="8">8</option>
+                                <option value="10">10</option>
+                                <option value="12">12</option>
+                                <option value="16">16</option>
                             </select>
                             形状:
                             <select id="penMode" onchange="setPenMode(this.value)">

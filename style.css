@@ -229,6 +229,27 @@ header#header {
     overflow-x: auto;
     white-space: nowrap;
 }
+
+/* autosave indicator in header */
+.autosave-status {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--muted);
+    margin-left:12px;
+}
+.autosave-status .autosave-icon {
+    font-size:18px;
+    display:inline-block;
+    vertical-align:middle;
+    transform-origin:center center;
+}
+.autosave-status.saving .autosave-icon {
+    animation: autosave-spin 1s linear infinite;
+}
+@keyframes autosave-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+}
 /* 各プロジェクト項目は横並びで縮まないようにする */
 .project-item {
     flex: 0 0 auto;
@@ -1151,6 +1172,9 @@ canvas {
     /* サイドバーが開いているときbodyを固定 */
     body {
         overflow-x: hidden;
+    }
+    .app-sub,.app-title{
+        display: none;
     }
 }
 

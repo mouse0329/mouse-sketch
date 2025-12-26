@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/*"
+  to = "https://mouse-sketch.web.app/"
+  status = 301
+  force = true
